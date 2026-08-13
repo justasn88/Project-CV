@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: JobCheckerApplication
+
+timer: "0 */10 * * * *"
+
+scraper:
+  cvbankas:
+    url: "https://www.cvbankas.lt/?city=Vilnius%2CKaunas%2CKlaipeda&keyw=Java"

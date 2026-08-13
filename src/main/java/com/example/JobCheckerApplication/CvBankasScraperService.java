@@ -4,6 +4,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +15,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 
+
 @Service
-public class JobScraperService {
+public class CvBankasScraperService {
     private final Set<String> seenJobs = new HashSet<>();
 
-    private final String searchURL = "https://www.cvbankas.lt/?city=Vilnius%2CKaunas%2CKlaipeda&keyw=Junior+Java";
+    private static final Logger logger = LoggerFactory.getLogger(CvBankasScraperService.class);
 
-    @Scheduled(fixedDelay = 600_000)
+    @Value("${scraper.cvbankas.url}")
+    private String searchURL;
+
+    @Scheduled(cron = "0 */10 * * * *")
     public void checkForNewJobs() {
         try {
             Document doc = Jsoup.connect(searchURL)
@@ -37,13 +44,13 @@ public class JobScraperService {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Failed to scrape jobs: " + e.getMessage());
+            throw new RuntimeException("Nepavyko prisijungti prie CVBanko", e);
         }
     }
     private void notifyUser(String title, String url) {
-        System.out.println("🚨 New Job Found: " + title);
-        System.out.println("🔗 Link: " + url);
-        System.out.println("---------------------------------------------------");
+        logger.info("🚨 New Job Found: {}", title);
+        logger.info("🔗 Link: {}", url);
+        logger.info("---------------------------------------------------");
     }
 }
 
