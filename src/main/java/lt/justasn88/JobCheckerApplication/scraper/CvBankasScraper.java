@@ -9,6 +9,7 @@ import org.jsoup.nodes.Document;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -20,42 +21,42 @@ import java.util.Random;
 
 
 @Service
-public class CvBankasScraper {
+public class CvBankasScraper extends AbstractJobScraper{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CvBankasScraper.class);
 
     private final CvBankasProperties properties;
     private final CVbankasHtmlParser parser;
-    private final JobNotificationManager notificationManager;
-    private final TaskScheduler taskScheduler;
 
     public CvBankasScraper(CvBankasProperties properties,
                            CVbankasHtmlParser parser,
                            JobNotificationManager notificationManager,
-                           TaskScheduler taskScheduler) {
+                           TaskScheduler taskScheduler,
+                           @Value("{$scraper.user-agent}") String userAgent) {
+
+        super(notificationManager, taskScheduler, userAgent);
+
         this.properties = properties;
         this.parser = parser;
-        this.notificationManager = notificationManager;
-        this.taskScheduler = taskScheduler;
     }
 
     @Scheduled(cron = "${scraper.cvbankas.cron}")
-    public void scheduleScrape() {
-        int randomDelayMs = new Random().nextInt(60000);
-        Instant executionTime = Instant.now().plusMillis(randomDelayMs);
-        taskScheduler.schedule(this::perfomScrape, executionTime);
+    public void trigger() {
+        applyDelayAndScrape();
     }
 
-    private void perfomScrape() {
-        try {
-            Document doc = Jsoup.connect(properties.getUrl())
-                    .userAgent(properties.getUserAgent())
-                    .get();
+    @Override
+    protected String getTargetUrl() {
+        return properties.getUrl();
+    }
 
-            List<JobDTO> jobs = parser.parseJobs(doc);
-            notificationManager.processJobs(jobs);
-        } catch (IOException e) {
-            LOGGER.error("Failed to connect to CVbankas: {}", e.getMessage());
-        }
+    @Override
+    protected List<JobDTO> extractJobs(Document document) {
+        return parser.parseJobs(document);
+    }
+
+    @Override
+    protected String getScraperName() {
+        return "CVbankas";
     }
 }

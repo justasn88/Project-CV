@@ -13,6 +13,7 @@ import java.util.Set;
 public class JobNotificationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobNotificationManager.class);
+
     private final Set<String> seenJobs = new HashSet<>();
 
     public void processJobs(List<JobDTO> foundJobs) {

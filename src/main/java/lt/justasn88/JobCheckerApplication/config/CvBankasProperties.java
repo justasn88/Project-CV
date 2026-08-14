@@ -11,6 +11,5 @@ import org.springframework.stereotype.Service;
 @ConfigurationProperties(prefix = "scraper.cvbankas")
 public class CvBankasProperties {
     private String url;
-    private String userAgent;
     private String cron;
 }
