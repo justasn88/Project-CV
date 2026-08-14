@@ -1,7 +1,5 @@
 spring:
   application:
     name: JobCheckerApplication
-  profiles:
-    active: local
 
 

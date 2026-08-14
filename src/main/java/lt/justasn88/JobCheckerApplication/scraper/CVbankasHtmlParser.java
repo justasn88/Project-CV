@@ -1,6 +1,6 @@
-package com.example.JobCheckerApplication.scraper;
+package lt.justasn88.JobCheckerApplication.scraper;
 
-import com.example.JobCheckerApplication.model.JobDto;
+import lt.justasn88.JobCheckerApplication.model.JobDTO;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -10,17 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class HtmlParser {
+public class CVbankasHtmlParser {
 
-    public List<JobDto> parseJobs(Document doc) {
-        List<JobDto> parsedJobs = new ArrayList<>();
+    public List<JobDTO> parseJobs(Document doc) {
+        List<JobDTO> parsedJobs = new ArrayList<>();
         Elements jobListings = doc.select("a.list_a");
 
         for (Element job : jobListings) {
             String jobURL = job.attr("href");
             String title = job.select("h3.list_h3").text();
 
-            parsedJobs.add(new JobDto(title, jobURL));
+            parsedJobs.add(new JobDTO(title, jobURL));
         }
 
         return parsedJobs;

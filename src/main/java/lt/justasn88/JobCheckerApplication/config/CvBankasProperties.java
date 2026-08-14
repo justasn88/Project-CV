@@ -1,4 +1,4 @@
-package com.example.JobCheckerApplication.config;
+package lt.justasn88.JobCheckerApplication.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

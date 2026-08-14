@@ -1,4 +1,4 @@
-package com.example.JobCheckerApplication;
+package lt.justasn88.JobCheckerApplication;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
