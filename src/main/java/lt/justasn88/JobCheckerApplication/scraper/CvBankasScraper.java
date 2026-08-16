@@ -1,23 +1,20 @@
 package lt.justasn88.JobCheckerApplication.scraper;
 
+import jakarta.annotation.PostConstruct;
 import lt.justasn88.JobCheckerApplication.config.CvBankasProperties;
 import lt.justasn88.JobCheckerApplication.model.JobDTO;
 
 import lt.justasn88.JobCheckerApplication.service.JobNotificationManager;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.time.Instant;
+
 import java.util.List;
-import java.util.Random;
 
 
 @Service
@@ -32,31 +29,34 @@ public class CvBankasScraper extends AbstractJobScraper{
                            CVbankasHtmlParser parser,
                            JobNotificationManager notificationManager,
                            TaskScheduler taskScheduler,
-                           @Value("{$scraper.user-agent}") String userAgent) {
+                           @Value("${scraper.user-agent}") String userAgent,
+                           @Value("${scraper.delay.min}") int minDelay,
+                           @Value("${scraper.delay.max}") int maxDelay) {
 
-        super(notificationManager, taskScheduler, userAgent);
+        super(notificationManager, taskScheduler, userAgent, minDelay, maxDelay);
 
         this.properties = properties;
         this.parser = parser;
     }
 
-    @Scheduled(cron = "${scraper.cvbankas.cron}")
-    public void trigger() {
-        applyDelayAndScrape();
+    @PostConstruct
+    public void initSchedule() {
+        registerCronSchedule(properties.getCron());
     }
 
     @Override
-    protected String getTargetUrl() {
+    public String getTargetUrl() {
         return properties.getUrl();
     }
 
     @Override
-    protected List<JobDTO> extractJobs(Document document) {
+    public List<JobDTO> extractJobs(Document document) {
         return parser.parseJobs(document);
     }
 
     @Override
-    protected String getScraperName() {
-        return "CVbankas";
+    public String getScraperName() {
+        return properties.getName();
     }
+
 }

@@ -14,6 +14,7 @@ public class JobNotificationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobNotificationManager.class);
 
+    // change to database
     private final Set<String> seenJobs = new HashSet<>();
 
     public void processJobs(List<JobDTO> foundJobs) {
@@ -26,7 +27,7 @@ public class JobNotificationManager {
     }
 
     private void notifyUser(JobDTO job) {
-        LOGGER.info("🚨 New Job Found: {}\n🔗 Link: {}\n---------------------------------------------------",
+        LOGGER.info("New Job Found: {}\nLink: {}\n---------------------------------------------------",
                 job.title(),
                 job.url());
     }
