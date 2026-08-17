@@ -31,4 +31,8 @@ public class JobNotificationManager {
                 job.title(),
                 job.url());
     }
+    public void notifyFailure(String scraperName, String errorMessage) {
+        // TODO: Telegram messenger
+        LOGGER.warn("WARNING: Scraper '{}' failed, error: {}", scraperName, errorMessage);
+    }
 }

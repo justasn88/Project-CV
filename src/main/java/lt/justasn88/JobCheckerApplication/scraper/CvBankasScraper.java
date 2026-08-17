@@ -34,9 +34,7 @@ public class CvBankasScraper extends AbstractJobScraper{
         super(
                 notificationManager,
                 taskScheduler,
-                scraperProperties.getUserAgent(),
-                scraperProperties.getDelay().getMin(),
-                scraperProperties.getDelay().getMax()
+                scraperProperties
         );
 
         this.properties = properties;
