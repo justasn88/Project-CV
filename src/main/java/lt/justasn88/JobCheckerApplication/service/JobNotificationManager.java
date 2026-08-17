@@ -14,7 +14,7 @@ public class JobNotificationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobNotificationManager.class);
 
-    // change to database
+    // TODO: Change to database
     private final Set<String> seenJobs = new HashSet<>();
 
     public void processJobs(List<JobDTO> foundJobs) {

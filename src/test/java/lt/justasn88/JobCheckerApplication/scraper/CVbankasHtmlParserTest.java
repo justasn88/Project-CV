@@ -38,14 +38,11 @@ class CVbankasHtmlParserTest {
 
         List<JobDTO> result = parser.parseJobs(mockDocument);
 
-        assertNotNull(result, "The list should not be null");
-        assertEquals(2, result.size(), "Should find exactly 2 job listings");
-
-        assertEquals("Java Developer", result.get(0).title());
-        assertEquals("https://www.cvbankas.lt/java-developer-1", result.get(0).url());
-
-        assertEquals("Spring Boot Engineer", result.get(1).title());
-        assertEquals("https://www.cvbankas.lt/spring-boot-guru-2", result.get(1).url());
+            List<JobDTO> exprectedJobs = List.of(
+                    new JobDTO("Java Developer", "https://www.cvbankas.lt/java-developer-1"),
+                    new JobDTO("Spring Boot Engineer", "https://www.cvbankas.lt/spring-boot-guru-2")
+            );
+            assertEquals(exprectedJobs, result, "The parsed job list should perfectly match the expected list\"");
     }
 
     @Test
