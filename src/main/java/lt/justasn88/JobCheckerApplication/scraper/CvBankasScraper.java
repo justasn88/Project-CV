@@ -9,7 +9,6 @@ import lt.justasn88.JobCheckerApplication.service.JobNotificationManager;
 import org.jsoup.nodes.Document;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,9 @@ public class CvBankasScraper extends AbstractJobScraper{
         super(
                 notificationManager,
                 taskScheduler,
-                scraperProperties
+                scraperProperties,
+                properties.getUrl(),
+                properties.getName()
         );
 
         this.properties = properties;
@@ -52,7 +53,7 @@ public class CvBankasScraper extends AbstractJobScraper{
     }
 
     @Override
-    public List<JobDTO> extractJobs(Document document) {
+    public List<JobDTO> extractJobListings(Document document) {
         return parser.parseJobs(document);
     }
 

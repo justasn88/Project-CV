@@ -1,5 +1,6 @@
 package lt.justasn88.JobCheckerApplication.scraper;
 
+import lombok.Getter;
 import lt.justasn88.JobCheckerApplication.config.ScraperProperties;
 import lt.justasn88.JobCheckerApplication.model.JobDTO;
 import lt.justasn88.JobCheckerApplication.service.JobNotificationManager;
@@ -18,16 +19,26 @@ import java.util.concurrent.ThreadLocalRandom;
 public abstract class AbstractJobScraper {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobScraper.class);
 
+    @Getter
+    private final String targetUrl;
+
+    @Getter
+    private final String scraperName;
+
     private final JobNotificationManager notificationManager;
     private final TaskScheduler taskScheduler;
     private final ScraperProperties scraperProperties;
 
     protected AbstractJobScraper(JobNotificationManager jobNotificationManager,
                                  TaskScheduler taskScheduler,
-                                 ScraperProperties scraperProperties) {
+                                 ScraperProperties scraperProperties,
+                                 String targetUrl,
+                                 String scraperName) {
         this.notificationManager = jobNotificationManager;
         this.taskScheduler = taskScheduler;
         this.scraperProperties = scraperProperties;
+        this.targetUrl = targetUrl;
+        this.scraperName = scraperName;
     }
 
     protected void registerCronSchedule(String cronExpression) {
@@ -40,10 +51,19 @@ public abstract class AbstractJobScraper {
     }
 
     public void scheduleNext() {
-        int randomDelayMs = ThreadLocalRandom.current().nextInt(scraperProperties.getDelay().getMin(), scraperProperties.getDelay().getMin());
-        Instant executionTime = Instant.now().plusMillis(randomDelayMs);
-
+        Instant executionTime = calculateNextExecutionTime();
         taskScheduler.schedule(this::executeScrape, executionTime);
+    }
+
+    protected Instant calculateNextExecutionTime() {
+        int minDelay = scraperProperties.getDelay().getMin();
+        int maxDelay = scraperProperties.getDelay().getMax();
+
+        int randomDelayMs = (minDelay >= maxDelay)
+                ? minDelay
+                : ThreadLocalRandom.current().nextInt(minDelay, maxDelay);
+
+        return Instant.now().plusMillis(randomDelayMs);
     }
 
     private void executeScrape() {
@@ -52,8 +72,8 @@ public abstract class AbstractJobScraper {
                     .userAgent(this.scraperProperties.getUserAgent())
                     .get();
 
-            List<JobDTO> jobs = extractJobs(doc);
-            notificationManager.processJobs(jobs);
+            List<JobDTO> jobs = extractJobListings(doc);
+            notificationManager.processJobs(jobs, getScraperName());
 
         } catch (IOException e) {
             LOGGER.error("Failed to connect to {}", getScraperName(), e);
@@ -62,9 +82,6 @@ public abstract class AbstractJobScraper {
         }
     }
 
-    public abstract String getTargetUrl();
+    public abstract List<JobDTO> extractJobListings (Document document);
 
-    public abstract List<JobDTO> extractJobs (Document document);
-
-    public abstract String getScraperName();
 }

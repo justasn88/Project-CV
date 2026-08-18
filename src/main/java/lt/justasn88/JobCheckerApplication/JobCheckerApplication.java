@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @ConfigurationPropertiesScan("lt.justasn88.JobCheckerApplication.config")
 @EnableScheduling
-public class JobCheckerApplication{
+public class JobCheckerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(JobCheckerApplication.class, args);
 	}

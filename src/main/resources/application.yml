@@ -1,5 +1,15 @@
 spring:
   application:
     name: JobCheckerApplication
-
-
+  datasource:
+    url: jdbc:postgresql://localhost:5433/job_checker_db
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
