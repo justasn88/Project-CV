@@ -1,7 +1,6 @@
 package lt.justasn88.JobCheckerApplication.scraper;
 
 import jakarta.annotation.PostConstruct;
-import lt.justasn88.JobCheckerApplication.config.CvBankasProperties;
 import lt.justasn88.JobCheckerApplication.config.ScraperProperties;
 import lt.justasn88.JobCheckerApplication.model.JobDTO;
 
@@ -21,35 +20,28 @@ public class CvBankasScraper extends AbstractJobScraper{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CvBankasScraper.class);
 
-    private final CvBankasProperties properties;
+    private final ScraperProperties.Provider cvBankasConfig;
     private final CVbankasHtmlParser parser;
 
-    public CvBankasScraper(CvBankasProperties properties,
+    public CvBankasScraper(ScraperProperties properties,
                            CVbankasHtmlParser parser,
                            JobNotificationManager notificationManager,
-                           TaskScheduler taskScheduler,
-                           ScraperProperties scraperProperties) {
+                           TaskScheduler taskScheduler) {
 
         super(
                 notificationManager,
                 taskScheduler,
-                scraperProperties,
-                properties.getUrl(),
-                properties.getName()
+                properties.getProviders().get("cvbankas"),
+                properties.getUserAgent()
         );
 
-        this.properties = properties;
+        this.cvBankasConfig = properties.getProviders().get("cvbankas");
         this.parser = parser;
     }
 
     @PostConstruct
     public void initSchedule() {
-        registerCronSchedule(properties.getCron());
-    }
-
-    @Override
-    public String getTargetUrl() {
-        return properties.getUrl();
+        registerCronSchedule(cvBankasConfig.getCron());
     }
 
     @Override
@@ -57,9 +49,5 @@ public class CvBankasScraper extends AbstractJobScraper{
         return parser.parseJobs(document);
     }
 
-    @Override
-    public String getScraperName() {
-        return properties.getName();
-    }
 
 }

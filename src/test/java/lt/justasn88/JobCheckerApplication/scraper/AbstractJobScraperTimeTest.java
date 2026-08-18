@@ -19,18 +19,20 @@ class AbstractJobScraperTimeTest {
         JobNotificationManager mockManager = Mockito.mock(JobNotificationManager.class);
         TaskScheduler mockScheduler = Mockito.mock(TaskScheduler.class);
 
-        ScraperProperties properties = new ScraperProperties();
+        ScraperProperties.Provider mockProvider = new ScraperProperties.Provider();
+        mockProvider.setUrl("http://test.com");
+        mockProvider.setName("TestScrapper");
+
         ScraperProperties.Delay delay = new ScraperProperties.Delay();
         delay.setMin(5000);
         delay.setMax(60000);
-        properties.setDelay(delay);
+        mockProvider.setDelay(delay);
 
         AbstractJobScraper myScraper = new AbstractJobScraper(
                 mockManager,
                 mockScheduler,
-                properties,
-                "http://test.com",
-                "TestScraper"
+                mockProvider,
+                "Test-User-Agent"
         ) {
             @Override
             public List<JobDTO> extractJobListings(Document document) {

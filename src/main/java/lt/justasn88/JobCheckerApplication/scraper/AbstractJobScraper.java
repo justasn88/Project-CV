@@ -19,26 +19,29 @@ import java.util.concurrent.ThreadLocalRandom;
 public abstract class AbstractJobScraper {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobScraper.class);
 
+    private final JobNotificationManager notificationManager;
+    private final TaskScheduler taskScheduler;
+    private final String userAgent;
+    private final ScraperProperties.Provider providerConfig;
+
     @Getter
     private final String targetUrl;
 
     @Getter
     private final String scraperName;
 
-    private final JobNotificationManager notificationManager;
-    private final TaskScheduler taskScheduler;
-    private final ScraperProperties scraperProperties;
 
     protected AbstractJobScraper(JobNotificationManager jobNotificationManager,
                                  TaskScheduler taskScheduler,
-                                 ScraperProperties scraperProperties,
-                                 String targetUrl,
-                                 String scraperName) {
+                                 ScraperProperties.Provider providerConfig,
+                                 String userAgent) {
         this.notificationManager = jobNotificationManager;
         this.taskScheduler = taskScheduler;
-        this.scraperProperties = scraperProperties;
-        this.targetUrl = targetUrl;
-        this.scraperName = scraperName;
+        this.providerConfig = providerConfig;
+        this.userAgent = userAgent;
+
+        this.targetUrl = providerConfig.getUrl();
+        this.scraperName = providerConfig.getName();
     }
 
     protected void registerCronSchedule(String cronExpression) {
@@ -56,8 +59,8 @@ public abstract class AbstractJobScraper {
     }
 
     protected Instant calculateNextExecutionTime() {
-        int minDelay = scraperProperties.getDelay().getMin();
-        int maxDelay = scraperProperties.getDelay().getMax();
+        int minDelay = providerConfig.getDelay().getMin();
+        int maxDelay = providerConfig.getDelay().getMax();
 
         int randomDelayMs = (minDelay >= maxDelay)
                 ? minDelay
@@ -69,7 +72,7 @@ public abstract class AbstractJobScraper {
     private void executeScrape() {
         try {
             Document doc = Jsoup.connect(getTargetUrl())
-                    .userAgent(this.scraperProperties.getUserAgent())
+                    .userAgent(this.userAgent)
                     .get();
 
             List<JobDTO> jobs = extractJobListings(doc);
