@@ -1,6 +1,6 @@
 package lt.justasn88.JobCheckerApplication.scraper;
 
-import lt.justasn88.JobCheckerApplication.model.JobDTO;
+import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,11 +36,11 @@ class CVbankasHtmlParserTest {
 
         Document mockDocument = Jsoup.parse(html);
 
-        List<JobDTO> result = parser.parseJobs(mockDocument);
+        List<JobListingsDTO> result = parser.parseJobs(mockDocument);
 
-            List<JobDTO> exprectedJobs = List.of(
-                    new JobDTO("Java Developer", "https://www.cvbankas.lt/java-developer-1"),
-                    new JobDTO("Spring Boot Engineer", "https://www.cvbankas.lt/spring-boot-guru-2")
+            List<JobListingsDTO> exprectedJobs = List.of(
+                    new JobListingsDTO("Java Developer", "https://www.cvbankas.lt/java-developer-1"),
+                    new JobListingsDTO("Spring Boot Engineer", "https://www.cvbankas.lt/spring-boot-guru-2")
             );
             assertEquals(exprectedJobs, result, "The parsed job list should perfectly match the expected list\"");
     }
@@ -57,7 +57,7 @@ class CVbankasHtmlParserTest {
 
         Document mockDocument = Jsoup.parse(emptyHtml);
 
-        List<JobDTO> result = parser.parseJobs(mockDocument);
+        List<JobListingsDTO> result = parser.parseJobs(mockDocument);
 
         assertNotNull(result, "The list should not be null");
         assertTrue(result.isEmpty(), "The list should be empty because no matching HTML elements were found");
@@ -77,7 +77,7 @@ class CVbankasHtmlParserTest {
 
         Document mockDocument = Jsoup.parse(malformedHtml);
 
-        List<JobDTO> result = parser.parseJobs(mockDocument);
+        List<JobListingsDTO> result = parser.parseJobs(mockDocument);
 
         assertEquals(1, result.size(), "Should find exactly 1 job listing despite the missing title");
         assertEquals("https://www.cvbankas.lt/broken-job", result.get(0).url());

@@ -1,6 +1,7 @@
 package lt.justasn88.JobCheckerApplication.scraper;
 import lt.justasn88.JobCheckerApplication.config.ScraperProperties;
-import lt.justasn88.JobCheckerApplication.model.JobDTO;
+import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import lt.justasn88.JobCheckerApplication.service.JobListingsService;
 import lt.justasn88.JobCheckerApplication.service.JobNotificationManager;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
@@ -12,30 +13,33 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class AbstractJobScraperTimeTest {
+class AbstractJobListingsScraperTimeTest {
 
     @Test
     void calculateNextExecutionTime_returnsTimeWithinBounds() {
         JobNotificationManager mockManager = Mockito.mock(JobNotificationManager.class);
         TaskScheduler mockScheduler = Mockito.mock(TaskScheduler.class);
+        JobListingsService mockService = Mockito.mock(JobListingsService.class);
 
-        ScraperProperties.Provider mockProvider = new ScraperProperties.Provider();
-        mockProvider.setUrl("http://test.com");
-        mockProvider.setName("TestScrapper");
 
-        ScraperProperties.Delay delay = new ScraperProperties.Delay();
-        delay.setMin(5000);
-        delay.setMax(60000);
-        mockProvider.setDelay(delay);
+        ScraperProperties.Delay delay = new ScraperProperties.Delay(5000, 60000);
 
-        AbstractJobScraper myScraper = new AbstractJobScraper(
+        ScraperProperties.Provider mockProvider = new ScraperProperties.Provider(
+                "http://test.com",
+                "0 0 * * * *",
+                "TestScrapper",
+                delay
+        );
+
+        AbstractJobListingsScraper myScraper = new AbstractJobListingsScraper(
                 mockManager,
                 mockScheduler,
                 mockProvider,
-                "Test-User-Agent"
+                "Test-User-Agent",
+                mockService
         ) {
             @Override
-            public List<JobDTO> extractJobListings(Document document) {
+            public List<JobListingsDTO> extractJobListings(Document document) {
                 return List.of();
             }
         };

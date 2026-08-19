@@ -5,24 +5,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Map;
 
-@Data
 @ConfigurationProperties(prefix = "scraper")
-public class ScraperProperties {
+public record ScraperProperties(
+        String userAgent,
+        Map<String, Provider> providers
+) {
+    public record Delay(int min, int max) {}
 
-    private String userAgent;
-    private Map<String, Provider> providers;
-
-    @Data
-    public static class Delay {
-        private int min;
-        private int max;
-    }
-
-    @Data
-    public static class Provider {
-        private String url;
-        private String cron;
-        private String name;
-        private Delay delay;
-    }
+    public record Provider(
+            String url,
+            String cron,
+            String name,
+            Delay delay
+    ) {}
 }

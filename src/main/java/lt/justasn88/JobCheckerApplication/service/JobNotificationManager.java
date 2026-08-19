@@ -1,8 +1,8 @@
 package lt.justasn88.JobCheckerApplication.service;
 
-import lt.justasn88.JobCheckerApplication.model.JobDTO;
-import lt.justasn88.JobCheckerApplication.model.JobEntity;
-import lt.justasn88.JobCheckerApplication.repository.JobRepository;
+import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import lt.justasn88.JobCheckerApplication.model.JobListingsEntity;
+import lt.justasn88.JobCheckerApplication.repository.JobListingsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,28 +14,7 @@ public class JobNotificationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobNotificationManager.class);
 
-    private final JobRepository jobRepository;
-
-    public JobNotificationManager(JobRepository jobRepository){
-        this.jobRepository = jobRepository;
-    }
-
-    public void processJobs(List<JobDTO> foundJobs, String scraperName) {
-        for (JobDTO jobDTO : foundJobs) {
-            if (!jobRepository.existsByUrl(jobDTO.url())) {
-                JobEntity newJob = new JobEntity();
-
-                newJob.setTitle(jobDTO.title());
-                newJob.setUrl(jobDTO.url());
-                newJob.setScraperName(scraperName);
-                jobRepository.save(newJob);
-
-                notifyUser(jobDTO);
-            }
-        }
-    }
-
-    private void notifyUser(JobDTO job) {
+    public void notifyUser(JobListingsDTO job) {
         LOGGER.info("New Job Found: {}\nLink: {}\n---------------------------------------------------",
                 job.title(),
                 job.url());

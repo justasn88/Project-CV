@@ -2,7 +2,8 @@ package lt.justasn88.JobCheckerApplication.scraper;
 
 import lombok.Getter;
 import lt.justasn88.JobCheckerApplication.config.ScraperProperties;
-import lt.justasn88.JobCheckerApplication.model.JobDTO;
+import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import lt.justasn88.JobCheckerApplication.service.JobListingsService;
 import lt.justasn88.JobCheckerApplication.service.JobNotificationManager;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,9 +17,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public abstract class AbstractJobScraper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobScraper.class);
+public abstract class AbstractJobListingsScraper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobListingsScraper.class);
 
+    private final JobListingsService jobListingsService;
     private final JobNotificationManager notificationManager;
     private final TaskScheduler taskScheduler;
     private final String userAgent;
@@ -31,17 +33,19 @@ public abstract class AbstractJobScraper {
     private final String scraperName;
 
 
-    protected AbstractJobScraper(JobNotificationManager jobNotificationManager,
-                                 TaskScheduler taskScheduler,
-                                 ScraperProperties.Provider providerConfig,
-                                 String userAgent) {
+    protected AbstractJobListingsScraper(JobNotificationManager jobNotificationManager,
+                                         TaskScheduler taskScheduler,
+                                         ScraperProperties.Provider providerConfig,
+                                         String userAgent,
+                                         JobListingsService jobListingsService) {
         this.notificationManager = jobNotificationManager;
         this.taskScheduler = taskScheduler;
         this.providerConfig = providerConfig;
         this.userAgent = userAgent;
+        this.jobListingsService = jobListingsService;
 
-        this.targetUrl = providerConfig.getUrl();
-        this.scraperName = providerConfig.getName();
+        this.targetUrl = providerConfig.url();
+        this.scraperName = providerConfig.name();
     }
 
     protected void registerCronSchedule(String cronExpression) {
@@ -59,8 +63,8 @@ public abstract class AbstractJobScraper {
     }
 
     protected Instant calculateNextExecutionTime() {
-        int minDelay = providerConfig.getDelay().getMin();
-        int maxDelay = providerConfig.getDelay().getMax();
+        int minDelay = providerConfig.delay().min();
+        int maxDelay = providerConfig.delay().max();
 
         int randomDelayMs = (minDelay >= maxDelay)
                 ? minDelay
@@ -75,16 +79,19 @@ public abstract class AbstractJobScraper {
                     .userAgent(this.userAgent)
                     .get();
 
-            List<JobDTO> jobs = extractJobListings(doc);
-            notificationManager.processJobs(jobs, getScraperName());
+            List<JobListingsDTO> jobs = extractJobListings(doc);
+            jobListingsService.processJobsListings(jobs, getScraperName());
 
+            jobListingsService.logExecution(getScraperName(), "SUCCESS", jobs.size(), null);
         } catch (IOException e) {
             LOGGER.error("Failed to connect to {}", getScraperName(), e);
 
             notificationManager.notifyFailure(getScraperName(), e.getMessage());
+
+            jobListingsService.logExecution(getScraperName(),"Failed", 0, e.getMessage());
         }
     }
 
-    public abstract List<JobDTO> extractJobListings (Document document);
+    public abstract List<JobListingsDTO> extractJobListings (Document document);
 
 }

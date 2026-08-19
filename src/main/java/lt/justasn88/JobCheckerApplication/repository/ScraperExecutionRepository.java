@@ -1,0 +1,9 @@
+package lt.justasn88.JobCheckerApplication.repository;
+
+import lt.justasn88.JobCheckerApplication.model.ScraperExecutionEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ScraperExecutionRepository extends JpaRepository<ScraperExecutionEntity, Long> {
+}
