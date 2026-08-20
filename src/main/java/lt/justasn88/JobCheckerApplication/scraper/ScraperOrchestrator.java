@@ -38,7 +38,7 @@ public class ScraperOrchestrator {
     }
 
     @PostConstruct
-    public void initSchedules(){
+    public void initSchedules() {
         for (AbstractJobListingsScraper scraper : scrapers) {
             String configKey = scraper.getScraperName().toLowerCase();
             ScraperProperties.Provider config = properties.providers().get(configKey);
@@ -72,6 +72,8 @@ public class ScraperOrchestrator {
             List<JobListingsDTO> jobs = scraper.performScrape();
 
             jobListingsService.processJobsListings(jobs, scraper.getScraperName());
+
+            jobListingsService.logExecution(scraper.getScraperName(), "SUCCESS", jobs.size(), null);
         } catch (Exception e) {
             LOGGER.error("Failed to connect to {}", scraper.getScraperName(), e);
             jobListingsNotificationManager.notifyFailure(scraper.getScraperName(), e.getMessage());

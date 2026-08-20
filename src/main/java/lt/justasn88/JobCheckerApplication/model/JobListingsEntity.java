@@ -16,10 +16,10 @@ public class JobListingsEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String title;
 
-    @Column(nullable = false, unique = true, length = 500)
+    @Column(nullable = false, unique = true)
     private String url;
 
     @Column(name = "scraper_name", nullable = false, length = 50)
@@ -28,4 +28,18 @@ public class JobListingsEntity {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Override
+    public boolean equals (Object o) {
+        if (this == o) return true;
+        if (!(o instanceof JobListingsEntity)) return false;
+        JobListingsEntity that = (JobListingsEntity) o;
+
+        return url != null && url.equals(that.getUrl());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
