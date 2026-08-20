@@ -13,16 +13,11 @@ import java.util.List;
 public class CVbankasHtmlParser {
 
     public List<JobListingsDTO> parseJobs(Document doc) {
-        List<JobListingsDTO> parsedJobs = new ArrayList<>();
-        Elements jobListings = doc.select("a.list_a");
-
-        for (Element job : jobListings) {
-            String jobURL = job.attr("href");
-            String title = job.select("h3.list_h3").text();
-
-            parsedJobs.add(new JobListingsDTO(title, jobURL));
-        }
-
-        return parsedJobs;
+        return doc.select("a.list_a").stream()
+                .map(job -> new JobListingsDTO(
+                        job.select("h3.list_h3").text(),
+                        job.attr("href")
+                ))
+                .toList();
     }
 }
