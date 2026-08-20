@@ -1,6 +1,5 @@
 package lt.justasn88.JobCheckerApplication.config;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Map;
@@ -10,6 +9,7 @@ public record ScraperProperties(
         String userAgent,
         Map<String, Provider> providers
 ) {
+
     public record Delay(int min, int max) {}
 
     public record Provider(

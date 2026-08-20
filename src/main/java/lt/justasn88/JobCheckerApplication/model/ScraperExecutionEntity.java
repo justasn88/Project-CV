@@ -1,13 +1,16 @@
 package lt.justasn88.JobCheckerApplication.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "scraper_executions")
-@Data
 public class ScraperExecutionEntity {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +18,10 @@ private Long id;
 
 private String scraperName;
 private String status;
+
+@Column(name = "jobs_found")
 private Integer JobListingsFound;
+
 private String errorMessage;
 
 @Column(name = "executed_at", insertable = false, updatable = false)

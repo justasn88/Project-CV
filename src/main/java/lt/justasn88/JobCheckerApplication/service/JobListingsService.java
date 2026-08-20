@@ -7,7 +7,6 @@ import lt.justasn88.JobCheckerApplication.repository.JobListingsRepository;
 import lt.justasn88.JobCheckerApplication.repository.ScraperExecutionRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.Serial;
 import java.util.List;
 
 @Service
@@ -16,10 +15,10 @@ public class JobListingsService {
     private final JobListingsRepository jobListingsRepository;
     private final ScraperExecutionRepository executionRepository;
 
-    private final JobNotificationManager notificationManager;
+    private final JobListingsNotificationManager notificationManager;
 
     public JobListingsService(JobListingsRepository jobListingsRepository,
-                              JobNotificationManager notificationManager,
+                              JobListingsNotificationManager notificationManager,
                               ScraperExecutionRepository executionRepository) {
         this.jobListingsRepository = jobListingsRepository;
         this.notificationManager = notificationManager;
