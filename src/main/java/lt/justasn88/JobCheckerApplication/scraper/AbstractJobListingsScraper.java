@@ -37,39 +37,43 @@ public abstract class AbstractJobListingsScraper {
         final int MAX_PAGES = 10;
 
         for (int page = 1; page <= MAX_PAGES; page++) {
-            String currentUrl = buildPageUrl(page);
-            LOGGER.info("Searching for job listings: {} page: {}", scraperName, page);
-
-            org.jsoup.Connection.Response response = Jsoup.connect(currentUrl)
-                    .userAgent(this.userAgent)
-                    .timeout(10000)
-                    .execute();
-
-            if (!response.url().toString().equals(currentUrl)) {
-                LOGGER.info("Page redirected from {} to {}. Pagination finished.", currentUrl, response.url());
-                break;
-            }
-
-            Document doc = response.parse();
-            List<JobListingsDTO> jobsOnPage = extractJobListings(doc);
-
+            List<JobListingsDTO> jobsOnPage = fetchJobsFromPage(page);
             if (jobsOnPage.isEmpty()) {
-                LOGGER.info("Page empty. Search stopped. Job listings found: {}", allJobs.size());
+                LOGGER.info("End of pagination. Total jobs found: {}", allJobs.size());
                 break;
             }
 
             allJobs.addAll(jobsOnPage);
-
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.error("Scraping forcefully terminated");
-                break;
-            }
+            pauseToAvoidBan();
         }
 
         return allJobs;
+    }
+
+    private List<JobListingsDTO> fetchJobsFromPage(int page) throws IOException {
+        String currentUrl = buildPageUrl(page);
+        LOGGER.info("Searching for jobs: {} page: {}", scraperName, page);
+
+        org.jsoup.Connection.Response response = Jsoup.connect(currentUrl)
+                .userAgent(this.userAgent)
+                .timeout(10000)
+                .execute();
+
+        if (!response.url().toString().equals(currentUrl)) {
+            LOGGER.info("Redirect detected from {} to {}. End of pagination.", currentUrl, response.url());
+            return List.of();
+        }
+
+        return extractJobListings(response.parse());
+    }
+
+    private void pauseToAvoidBan() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("Scraping forcefully terminated.");
+        }
     }
 
     protected String buildPageUrl(int page) {
