@@ -32,13 +32,13 @@ public class JobListingsNotificationManager {
                 job.url());
 
         String message = String.format("<b>New job listing!</b>\n\n %s\n %s", job.title(), job.url());
-        sendMessageToTelegram(message);
+       //sendMessageToTelegram(message);
     }
     public void notifyFailure(String scraperName, String errorMessage) {
         LOGGER.warn("WARNING: Scraper '{}' failed, error: {}", scraperName, errorMessage);
 
         String message = String.format("<b>scraper error: %s</b>\n\n reason: %s", scraperName, errorMessage);
-        sendMessageToTelegram(message);
+        //sendMessageToTelegram(message);
     }
 
     private void sendMessageToTelegram(String text) {
