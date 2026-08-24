@@ -34,3 +34,11 @@ build/
 
 application-local.yml
 .env
+
+git rm -r --cached .
+**/.terraform/
+**/.terragrunt-cache/
+**/*.tfstate
+**/*.tfstate.backup
+**/*.tfvars
+**/*.tfplan
