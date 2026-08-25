@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,11 +28,16 @@ spec:
           image: postgres:15
           env:
             - name: POSTGRES_USER
-              value: "***"
+              value: "{{ .Values.database.user }}"
             - name: POSTGRES_PASSWORD
-              value: "***"
+              value: "{{ .Values.database.password }}"
             - name: POSTGRES_DB
-              value: "***"
+              value: "{{ .Values.database.name }}"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
           resources:
             requests:
               memory: "150Mi"
@@ -29,6 +45,10 @@ spec:
               memory: "250Mi"
           ports:
             - containerPort: 5432
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
 ---
 apiVersion: v1
 kind: Service

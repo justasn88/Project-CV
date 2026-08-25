@@ -35,6 +35,7 @@ build/
 application-local.yml
 .env
 
+### Terragrunt/Terraform ##
 git rm -r --cached .
 **/.terraform/
 **/.terragrunt-cache/
@@ -42,3 +43,7 @@ git rm -r --cached .
 **/*.tfstate.backup
 **/*.tfvars
 **/*.tfplan
+
+### Helm ###
+
+aws-infra/job-scraper-chart/values-*.yaml

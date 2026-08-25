@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: scraper-secrets
+type: Opaque
+stringData:
+  TELEGRAM_BOT_TOKEN: "{{ .Values.telegram.botToken }}"
+  SPRING_DATASOURCE_PASSWORD: "{{ .Values.database.password }}"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scraper-config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-service:5432/{{ .Values.database.name }}"
+  SPRING_DATASOURCE_USERNAME: "{{ .Values.database.user }}"
+  
+  TELEGRAM_CHAT_ID: "{{ .Values.telegram.chatId }}"
+  
+  SCRAPER_USER_AGENT: "{{ .Values.scraper.userAgent }}"
+  SCRAPER_PROVIDERS_CVBANKAS_URL: "{{ .Values.scraper.providers.cvbankas.url }}"
+  SCRAPER_PROVIDERS_CVBANKAS_CRON: "{{ .Values.scraper.providers.cvbankas.cron }}"
+  SCRAPER_PROVIDERS_CVBANKAS_NAME: "{{ .Values.scraper.providers.cvbankas.name }}"
+  SCRAPER_PROVIDERS_CVBANKAS_DELAY_MIN: "{{ .Values.scraper.providers.cvbankas.delayMin }}"
+  SCRAPER_PROVIDERS_CVBANKAS_DELAY_MAX: "{{ .Values.scraper.providers.cvbankas.delayMax }}"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-scraper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: job-scraper
+  template:
+    metadata:
+      labels:
+        app: job-scraper
+    spec:
+      containers:
+        - name: scraper
+          image: justasn8/job-checker:v1.0.1
+          envFrom:
+            - secretRef:
+                name: scraper-secrets
+            - configMapRef:
+                name: scraper-config
+          resources:
+            requests:
+              memory: "100Mi"
+            limits:
+              memory: "450Mi"
