@@ -34,7 +34,7 @@ public abstract class AbstractJobListingsScraper {
 
     public List<JobListingsDTO> performScrape() throws IOException {
         List<JobListingsDTO> allJobs = new ArrayList<>();
-        final int MAX_PAGES = 10;
+        final int MAX_PAGES = 5;
 
         for (int page = 1; page <= MAX_PAGES; page++) {
             List<JobListingsDTO> jobsOnPage = fetchJobsFromPage(page);
@@ -56,8 +56,16 @@ public abstract class AbstractJobListingsScraper {
 
         org.jsoup.Connection.Response response = Jsoup.connect(currentUrl)
                 .userAgent(this.userAgent)
-                .timeout(10000)
+                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+                .header("Accept-Language", "lt,en-US;q=0.7,en;q=0.3")
+                .timeout(30000)
+                .ignoreHttpErrors(true)
                 .execute();
+
+        if (response.statusCode() == 404) {
+            LOGGER.info("Page not found (404) for {}. Assuming end of pagination.", currentUrl);
+            return List.of();
+        }
 
         if (!response.url().toString().equals(currentUrl)) {
             LOGGER.info("Redirect detected from {} to {}. End of pagination.", currentUrl, response.url());

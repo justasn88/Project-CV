@@ -19,11 +19,18 @@ data:
   TELEGRAM_CHAT_ID: "{{ .Values.telegram.chatId }}"
   
   SCRAPER_USER_AGENT: "{{ .Values.scraper.userAgent }}"
+  
   SCRAPER_PROVIDERS_CVBANKAS_URL: "{{ .Values.scraper.providers.cvbankas.url }}"
   SCRAPER_PROVIDERS_CVBANKAS_CRON: "{{ .Values.scraper.providers.cvbankas.cron }}"
   SCRAPER_PROVIDERS_CVBANKAS_NAME: "{{ .Values.scraper.providers.cvbankas.name }}"
   SCRAPER_PROVIDERS_CVBANKAS_DELAY_MIN: "{{ .Values.scraper.providers.cvbankas.delayMin }}"
   SCRAPER_PROVIDERS_CVBANKAS_DELAY_MAX: "{{ .Values.scraper.providers.cvbankas.delayMax }}"
+
+  SCRAPER_PROVIDERS_CVMARKET_URL: "{{ .Values.scraper.providers.cvmarket.url }}"
+  SCRAPER_PROVIDERS_CVMARKET_CRON: "{{ .Values.scraper.providers.cvmarket.cron }}"
+  SCRAPER_PROVIDERS_CVMARKET_NAME: "{{ .Values.scraper.providers.cvmarket.name }}"
+  SCRAPER_PROVIDERS_CVMARKET_DELAY_MIN: "{{ .Values.scraper.providers.cvmarket.delayMin }}"
+  SCRAPER_PROVIDERS_CVMARKET_DELAY_MAX: "{{ .Values.scraper.providers.cvmarket.delayMax }}"
 
 ---
 apiVersion: apps/v1
@@ -42,7 +49,7 @@ spec:
     spec:
       containers:
         - name: scraper
-          image: justasn8/job-checker:v1.0.1
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           envFrom:
             - secretRef:
                 name: scraper-secrets

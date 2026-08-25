@@ -11,13 +11,13 @@ import java.util.List;
 
 
 @Service
-public class CvBankasJobListingsScraper extends AbstractJobListingsScraper {
+public class CVbankasJobListingsScraper extends AbstractJobListingsScraper {
 
     private static final String PROVIDER_NAME = "cvbankas";
 
     private final CVbankasHtmlParser parser;
 
-    public CvBankasJobListingsScraper(ScraperProperties properties,
+    public CVbankasJobListingsScraper(ScraperProperties properties,
                                       CVbankasHtmlParser parser) {
 
         super(
