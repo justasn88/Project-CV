@@ -5,6 +5,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: gp2
   resources:
     requests:
       storage: 2Gi
@@ -15,6 +16,8 @@ metadata:
   name: postgres
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: postgres
@@ -40,7 +43,7 @@ spec:
               mountPath: /var/lib/postgresql/data
           resources:
             requests:
-              memory: "150Mi"
+              memory: "10Mi"
             limits:
               memory: "250Mi"
           ports:

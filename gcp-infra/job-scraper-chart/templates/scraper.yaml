@@ -57,6 +57,6 @@ spec:
                 name: scraper-config
           resources:
             requests:
-              memory: "100Mi"
+              memory: "10Mi"
             limits:
               memory: "450Mi"

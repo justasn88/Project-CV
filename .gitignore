@@ -46,4 +46,4 @@ git rm -r --cached .
 
 ### Helm ###
 
-aws-infra/job-scraper-chart/values-*.yaml
+gcp-infra/job-scraper-chart/values-*.yaml
