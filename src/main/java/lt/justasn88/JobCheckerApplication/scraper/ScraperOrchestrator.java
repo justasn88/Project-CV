@@ -1,78 +1,53 @@
 package lt.justasn88.JobCheckerApplication.scraper;
 
-import jakarta.annotation.PostConstruct;
-import lt.justasn88.JobCheckerApplication.config.ScraperProperties;
 import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
 import lt.justasn88.JobCheckerApplication.service.JobListingsNotificationManager;
 import lt.justasn88.JobCheckerApplication.service.JobListingsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 @Component
-public class ScraperOrchestrator {
+public class ScraperOrchestrator implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScraperOrchestrator.class);
 
     private final List<AbstractJobListingsScraper> scrapers;
-    private final ScraperProperties properties;
-    private final TaskScheduler taskScheduler;
     private final JobListingsService jobListingsService;
     private final JobListingsNotificationManager jobListingsNotificationManager;
 
     public ScraperOrchestrator (List<AbstractJobListingsScraper> scrapers,
-                                ScraperProperties properties,
-                                TaskScheduler taskScheduler,
                                 JobListingsService jobListingsService,
                                 JobListingsNotificationManager jobListingsNotificationManager) {
         this.scrapers = scrapers;
-        this.properties = properties;
-        this.taskScheduler = taskScheduler;
         this.jobListingsService = jobListingsService;
         this.jobListingsNotificationManager = jobListingsNotificationManager;
     }
 
-    @PostConstruct
-    public void initSchedules() {
+    @Override
+    public void run(String... args) throws Exception {
+        int randomDelaySeconds = new Random().nextInt(31) + 15;
+        LOGGER.info("Cloud scheduler triggered the application. Waiting {} seconds before scraping to simulate human behavior...", randomDelaySeconds);
+
+        Thread.sleep(randomDelaySeconds * 1000L);
+
         for (AbstractJobListingsScraper scraper : scrapers) {
-            String configKey = scraper.getScraperName().toLowerCase();
-            ScraperProperties.Provider config = properties.providers().get(configKey);
-
-            if (config != null){
-                LOGGER.info("Registering {} planner with schedule: {}", scraper.getScraperName(), config.cron());
-                taskScheduler.schedule(
-                        () -> scheduleNext(scraper, config),
-                        new CronTrigger(config.cron())
-                );
-            }
+            executeScrape(scraper);
         }
-    }
 
-    private void scheduleNext(AbstractJobListingsScraper scraper, ScraperProperties.Provider config) {
-        int minDelay = config.delay().min();
-        int maxDelay = config.delay().max();
-        long randomDelayMs = calculateRandomDelay(minDelay, maxDelay);
-
-        taskScheduler.schedule(() -> executeScrape(scraper), Instant.now().plusMillis(randomDelayMs));
-    }
-
-    long calculateRandomDelay(int minDelay, int maxDelay) {
-        return (minDelay >= maxDelay)
-                ? minDelay
-                : ThreadLocalRandom.current().nextInt(minDelay,maxDelay);
+        LOGGER.info("All scraping tasks completed successfully. Shutting down the container.");
+        System.exit(0);
     }
 
     private void executeScrape(AbstractJobListingsScraper scraper) {
         try {
+            LOGGER.info("Starting scrape for: {}", scraper.getScraperName());
             List<JobListingsDTO> jobs = scraper.performScrape();
 
             jobListingsService.processJobsListings(jobs, scraper.getScraperName());
-
             jobListingsService.logExecution(scraper.getScraperName(), "SUCCESS", jobs.size(), null);
         } catch (Exception e) {
             LOGGER.error("Failed to connect to {}", scraper.getScraperName(), e);
