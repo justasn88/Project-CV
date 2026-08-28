@@ -26,15 +26,12 @@ inputs = {
     "scraper.userAgent"          = local.helm_values.scraper.userAgent
 
     "scraper.providers.cvbankas.url"      = local.helm_values.scraper.providers.cvbankas.url
-    "scraper.providers.cvbankas.cron"     = local.helm_values.scraper.providers.cvbankas.cron
     "scraper.providers.cvbankas.name"     = local.helm_values.scraper.providers.cvbankas.name
-    "scraper.providers.cvbankas.delayMin" = local.helm_values.scraper.providers.cvbankas.delayMin
-    "scraper.providers.cvbankas.delayMax" = local.helm_values.scraper.providers.cvbankas.delayMax
 
     "scraper.providers.cvmarket.url"      = local.helm_values.scraper.providers.cvmarket.url
-    "scraper.providers.cvmarket.cron"     = local.helm_values.scraper.providers.cvmarket.cron
     "scraper.providers.cvmarket.name"     = local.helm_values.scraper.providers.cvmarket.name
-    "scraper.providers.cvmarket.delayMin" = local.helm_values.scraper.providers.cvmarket.delayMin
-    "scraper.providers.cvmarket.delayMax" = local.helm_values.scraper.providers.cvmarket.delayMax
+
+    "scraper.providers.cvonline.url"      = local.helm_values.scraper.providers.cvonline.url
+    "scraper.providers.cvonline.name"     = local.helm_values.scraper.providers.cvonline.name
   }
 }

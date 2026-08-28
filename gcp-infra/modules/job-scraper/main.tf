@@ -38,7 +38,7 @@ resource "google_project_iam_member" "scheduler_invoker" {
 resource "google_cloud_scheduler_job" "invoke_scraper" {
   name             = "trigger-job-scraper"
   description      = "Paleidzia Java skreperi"
-  schedule         = "13 */2 * * *"
+  schedule         = "13 */1 * * *"
   time_zone        = "Europe/Vilnius"
   region           = var.region
 

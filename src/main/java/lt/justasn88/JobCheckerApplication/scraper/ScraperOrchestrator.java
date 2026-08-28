@@ -52,6 +52,7 @@ public class ScraperOrchestrator implements CommandLineRunner {
         } catch (Exception e) {
             LOGGER.error("Failed to connect to {}", scraper.getScraperName(), e);
             jobListingsNotificationManager.notifyFailure(scraper.getScraperName(), e.getMessage());
+            jobListingsService.logExecution(scraper.getScraperName(), "FAILED", 0, e.getMessage());
         }
     }
 }

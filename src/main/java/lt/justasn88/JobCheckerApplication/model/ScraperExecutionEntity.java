@@ -20,7 +20,7 @@ private String scraperName;
 private String status;
 
 @Column(name = "jobs_found")
-private Integer JobListingsFound;
+private Integer jobListingsFound;
 
 private String errorMessage;
 

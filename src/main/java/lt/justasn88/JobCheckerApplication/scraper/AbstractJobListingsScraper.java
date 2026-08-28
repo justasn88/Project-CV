@@ -9,8 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractJobListingsScraper {
 
@@ -23,51 +26,66 @@ public abstract class AbstractJobListingsScraper {
     private final String scraperName;
 
     private final String userAgent;
+    private final long requestDelayMs;
+    private final Map<String, String> headers;
 
-
-    protected AbstractJobListingsScraper(ScraperProperties.Provider providerConfig, String userAgent){
+    protected AbstractJobListingsScraper(ScraperProperties.Provider providerConfig, ScraperProperties scraperProperties){
         this.targetUrl = providerConfig.url();
         this.scraperName = providerConfig.name();
-        this.userAgent = userAgent;
+        this.userAgent = scraperProperties.userAgent();
+        this.headers = scraperProperties.headers();
+        this.requestDelayMs = scraperProperties.requestDelayMs();
     }
 
 
     public List<JobListingsDTO> performScrape() throws IOException {
-        List<JobListingsDTO> allJobs = new ArrayList<>();
+        java.util.Set<JobListingsDTO> allJobs = new java.util.LinkedHashSet<>();
         final int MAX_PAGES = 5;
 
         for (int page = 1; page <= MAX_PAGES; page++) {
             List<JobListingsDTO> jobsOnPage = fetchJobsFromPage(page);
+
             if (jobsOnPage.isEmpty()) {
-                LOGGER.info("End of pagination. Total jobs found: {}", allJobs.size());
+                LOGGER.info("End of pagination (empty page).");
                 break;
             }
 
+            int sizeBefore = allJobs.size();
             allJobs.addAll(jobsOnPage);
+
+            if (allJobs.size() == sizeBefore) {
+                LOGGER.info("Job count did not increase (total remains {}). Page {} returned duplicate jobs. Stopping.", allJobs.size(), page);
+                break;
+            }
+
             pauseToAvoidBan();
         }
 
-        return allJobs;
+        return new java.util.ArrayList<>(allJobs);
     }
 
     private List<JobListingsDTO> fetchJobsFromPage(int page) throws IOException {
         String currentUrl = buildPageUrl(page);
         LOGGER.info("Searching for jobs: {} page: {}", scraperName, page);
 
-        org.jsoup.Connection.Response response = Jsoup.connect(currentUrl)
+        org.jsoup.Connection connection = Jsoup.connect(currentUrl)
                 .userAgent(this.userAgent)
-                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-                .header("Accept-Language", "lt,en-US;q=0.7,en;q=0.3")
                 .timeout(30000)
-                .ignoreHttpErrors(true)
-                .execute();
+                .ignoreHttpErrors(true);
 
+        if (this.headers != null && !this.headers.isEmpty()) {
+            connection.headers(this.headers);
+        }
+
+        org.jsoup.Connection.Response response = connection.execute();
         if (response.statusCode() == 404) {
             LOGGER.info("Page not found (404) for {}. Assuming end of pagination.", currentUrl);
             return List.of();
         }
+        String decodedCurrentUrl = URLDecoder.decode(currentUrl, StandardCharsets.UTF_8);
+        String decodedResponseUrl = URLDecoder.decode(response.url().toString(), StandardCharsets.UTF_8);
 
-        if (!response.url().toString().equals(currentUrl)) {
+        if (!decodedResponseUrl.equals(decodedCurrentUrl)) {
             LOGGER.info("Redirect detected from {} to {}. End of pagination.", currentUrl, response.url());
             return List.of();
         }
@@ -77,19 +95,14 @@ public abstract class AbstractJobListingsScraper {
 
     private void pauseToAvoidBan() {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(this.requestDelayMs);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             LOGGER.error("Scraping forcefully terminated.");
         }
     }
 
-    protected String buildPageUrl(int page) {
-        if (page == 1) {
-            return targetUrl;
-        }
-        return targetUrl + (targetUrl.contains("?") ? "&" : "?") + "page=" + page;
-    }
+    protected abstract String buildPageUrl(int page);
 
     public abstract List<JobListingsDTO> extractJobListings (Document document);
 

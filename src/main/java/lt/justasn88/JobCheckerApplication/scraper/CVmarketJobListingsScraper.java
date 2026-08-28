@@ -19,18 +19,12 @@ public class CVmarketJobListingsScraper extends AbstractJobListingsScraper {
 
         super(
                 properties.providers().get(PROVIDER_NAME),
-                properties.userAgent()
+                properties
         );
 
         this.parser = parser;
     }
 
-    @Override
-    public List<JobListingsDTO> extractJobListings(Document document) {
-        return parser.parseJobs(document);
-    }
-
-    @Override
     protected String buildPageUrl(int page) {
         if (page == 1) {
             return getTargetUrl();
@@ -40,6 +34,11 @@ public class CVmarketJobListingsScraper extends AbstractJobListingsScraper {
 
         String currentUrl = getTargetUrl();
         return currentUrl + (currentUrl.contains("?") ? "&" : "?") + "start=" + startOffset;
+    }
+
+    @Override
+    public List<JobListingsDTO> extractJobListings(Document document) {
+        return parser.parseJobs(document);
     }
 
 }

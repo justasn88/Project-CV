@@ -7,6 +7,8 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "scraper")
 public record ScraperProperties(
         String userAgent,
+        Map<String, String> headers,
+        long requestDelayMs,
         Map<String, Provider> providers
 ) {
 
