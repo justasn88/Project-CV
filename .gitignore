@@ -47,3 +47,4 @@ git rm -r --cached .
 ### Helm ###
 
 gcp-infra/job-scraper-chart/values-*.yaml
+.aider*

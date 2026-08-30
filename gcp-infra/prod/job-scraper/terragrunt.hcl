@@ -33,5 +33,8 @@ inputs = {
 
     "scraper.providers.cvonline.url"      = local.helm_values.scraper.providers.cvonline.url
     "scraper.providers.cvonline.name"     = local.helm_values.scraper.providers.cvonline.name
+
+    "scraper.providers.linkedin.url"      = local.helm_values.scraper.providers.linkedin.url
+    "scraper.providers.linkedin.name"     = local.helm_values.scraper.providers.linkedin.name
   }
 }

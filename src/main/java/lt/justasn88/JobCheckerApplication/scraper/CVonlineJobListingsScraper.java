@@ -31,8 +31,16 @@ public class CVonlineJobListingsScraper extends AbstractJobListingsScraper {
     }
 
     protected String buildPageUrl(int page) {
-        if (page == 1) return getTargetUrl();
+        if (page == 1) {
+            return getTargetUrl();
+        }
+
         int offset = (page - 1) * 20;
-        return getTargetUrl() + (getTargetUrl().contains("?") ? "&" : "?") + "offset=" + offset;
+        String url = getTargetUrl();
+
+        if (url.contains("offset=")) {
+            return url.replaceAll("offset=\\d+", "offset=" + offset);
+        }
+        return url + (url.contains("?") ? "&" : "?") + "offset=" + offset;
     }
 }

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractJobListingsScraper {
+public abstract class AbstractJobListingsScraper implements JobListingsScraper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScraperOrchestrator.class);
 

@@ -15,11 +15,11 @@ import java.util.Random;
 public class ScraperOrchestrator implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScraperOrchestrator.class);
 
-    private final List<AbstractJobListingsScraper> scrapers;
+    private final List<JobListingsScraper> scrapers;
     private final JobListingsService jobListingsService;
     private final JobListingsNotificationManager jobListingsNotificationManager;
 
-    public ScraperOrchestrator (List<AbstractJobListingsScraper> scrapers,
+    public ScraperOrchestrator (List<JobListingsScraper> scrapers,
                                 JobListingsService jobListingsService,
                                 JobListingsNotificationManager jobListingsNotificationManager) {
         this.scrapers = scrapers;
@@ -34,7 +34,7 @@ public class ScraperOrchestrator implements CommandLineRunner {
 
         Thread.sleep(randomDelaySeconds * 1000L);
 
-        for (AbstractJobListingsScraper scraper : scrapers) {
+        for (JobListingsScraper scraper : scrapers) {
             executeScrape(scraper);
         }
 
@@ -42,7 +42,7 @@ public class ScraperOrchestrator implements CommandLineRunner {
         System.exit(0);
     }
 
-    private void executeScrape(AbstractJobListingsScraper scraper) {
+    private void executeScrape(JobListingsScraper scraper) {
         try {
             LOGGER.info("Starting scrape for: {}", scraper.getScraperName());
             List<JobListingsDTO> jobs = scraper.performScrape();

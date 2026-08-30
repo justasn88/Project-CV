@@ -9,7 +9,7 @@ resource "google_cloud_run_v2_job" "scraper_job" {
         image = var.docker_image
 
         resources {
-          limits = { memory = "512Mi", cpu = "1" }
+          limits = { memory = "2048Mi", cpu = "1" }
         }
 
         dynamic "env" {

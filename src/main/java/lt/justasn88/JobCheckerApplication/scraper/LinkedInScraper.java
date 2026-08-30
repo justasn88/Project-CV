@@ -1,0 +1,72 @@
+package lt.justasn88.JobCheckerApplication.scraper;
+
+import com.microsoft.playwright.Page;
+import lt.justasn88.JobCheckerApplication.config.ScraperProperties;
+import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.springframework.stereotype.Component;
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public class LinkedInScraper extends AbstractPlaywrightScraper {
+
+    private static final String PROVIDER_NAME = "linkedin";
+    private final String targetUrl;
+    private final String scraperName;
+
+    public LinkedInScraper(ScraperProperties properties) {
+        ScraperProperties.Provider provider = properties.providers().get(PROVIDER_NAME);
+        this.targetUrl = provider.url();
+        this.scraperName = provider.name();
+    }
+
+    @Override
+    public String getScraperName() {
+        return this.scraperName;
+    }
+
+    @Override
+    protected List<JobListingsDTO> fetchJobsFromPage(Page browserPage, int pageNum) {
+        List<JobListingsDTO> jobsList = new ArrayList<>();
+
+        int startOffset = (pageNum - 1) * 25;
+
+        String currentUrl = targetUrl + (targetUrl.contains("?") ? "&" : "?") + "start=" + startOffset;
+
+        System.out.println("Navigating to LinkedIn: " + currentUrl);
+        browserPage.navigate(currentUrl);
+
+        try {
+            browserPage.waitForSelector("ul.jobs-search__results-list");
+
+            String htmlContent = browserPage.content();
+            Document doc = Jsoup.parse(htmlContent);
+
+            Elements jobElements = doc.select("ul.jobs-search__results-list > li");
+
+            for (Element el : jobElements) {
+                String title = el.select("h3.base-search-card__title").text().trim();
+                String jobUrl = el.select("a.base-card__full-link").attr("href");
+
+                if (jobUrl.contains("?")) {
+                    jobUrl = jobUrl.substring(0, jobUrl.indexOf("?"));
+                }
+
+                if (!title.isEmpty() && !jobUrl.isEmpty()) {
+                    jobsList.add(new JobListingsDTO(title, jobUrl));
+                }
+            }
+
+            System.out.println("In LinkedIn page: " + pageNum + " found jobs: " + jobsList.size());
+
+        } catch (Exception e) {
+            System.err.println("Failed to read LinkedIn page " + pageNum + ": " + e.getMessage());
+        }
+
+        return jobsList;
+    }
+}
