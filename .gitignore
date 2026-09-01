@@ -46,5 +46,5 @@ git rm -r --cached .
 
 ### Helm ###
 
-gcp-infra/prod/values-*.yaml
+**/values-prod.yaml
 .aider*
