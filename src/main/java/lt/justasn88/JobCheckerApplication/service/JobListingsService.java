@@ -8,6 +8,7 @@ import lt.justasn88.JobCheckerApplication.repository.ScraperExecutionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class JobListingsService {
@@ -27,19 +28,33 @@ public class JobListingsService {
 
 
     public void processJobsListings(List<JobListingsDTO> foundJobs, String scraperName) {
-        for (JobListingsDTO jobListingsDTO : foundJobs) {
-            if (!jobListingsRepository.existsByUrl(jobListingsDTO.url())) {
-                JobListingsEntity newJob = new JobListingsEntity();
+        if (foundJobs.isEmpty()) return;
 
-                newJob.setTitle(jobListingsDTO.title());
-                newJob.setUrl(jobListingsDTO.url());
-                newJob.setScraperName(scraperName);
-                jobListingsRepository.save(newJob);
+        List<String> scrapedUrls = foundJobs.stream().map(JobListingsDTO::url).toList();
+        Set<String> existingUrls = jobListingsRepository.findExistingUrls(scrapedUrls);
 
-                notificationManager.notifyUser(jobListingsDTO);
-            }
+        List<JobListingsDTO> newJobDTOs = foundJobs.stream()
+                .filter(job -> !existingUrls.contains(job.url()))
+                .toList();
+
+        if (newJobDTOs.isEmpty()) {
+            return;
         }
+
+        List<JobListingsEntity> newJobs = newJobDTOs.stream()
+                .map(job -> {
+                    JobListingsEntity entity = new JobListingsEntity();
+                    entity.setTitle(job.title());
+                    entity.setUrl(job.url());
+                    entity.setScraperName(scraperName);
+                    return entity;
+                }).toList();
+
+        jobListingsRepository.saveAll(newJobs);
+        notificationManager.notifyUsers(newJobDTOs);
     }
+
+
 
     public void logExecution(String scraperName, String status, int jobsFound, String errorMessage) {
         ScraperExecutionEntity execution = new ScraperExecutionEntity();

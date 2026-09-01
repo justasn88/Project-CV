@@ -30,16 +30,14 @@ public class JobListingsEntity {
     private LocalDateTime createdAt;
 
     @Override
-    public boolean equals (Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JobListingsEntity)) return false;
-        JobListingsEntity that = (JobListingsEntity) o;
-
+        if (!(o instanceof JobListingsEntity that)) return false;
         return url != null && url.equals(that.getUrl());
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return url != null ? url.hashCode() : getClass().hashCode();
     }
 }

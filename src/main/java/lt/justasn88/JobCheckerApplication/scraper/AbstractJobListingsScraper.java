@@ -39,7 +39,7 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
 
 
     public List<JobListingsDTO> performScrape() throws IOException {
-        java.util.Set<JobListingsDTO> allJobs = new java.util.LinkedHashSet<>();
+        java.util.Map<String, JobListingsDTO> allJobs = new java.util.LinkedHashMap<>();
         final int MAX_PAGES = 5;
 
         for (int page = 1; page <= MAX_PAGES; page++) {
@@ -51,7 +51,10 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
             }
 
             int sizeBefore = allJobs.size();
-            allJobs.addAll(jobsOnPage);
+
+            for (JobListingsDTO job : jobsOnPage) {
+                allJobs.putIfAbsent(job.url(), job);
+            }
 
             if (allJobs.size() == sizeBefore) {
                 LOGGER.info("Job count did not increase (total remains {}). Page {} returned duplicate jobs. Stopping.", allJobs.size(), page);
@@ -60,8 +63,7 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
 
             pauseToAvoidBan();
         }
-
-        return new java.util.ArrayList<>(allJobs);
+        return new java.util.ArrayList<>(allJobs.values());
     }
 
     private List<JobListingsDTO> fetchJobsFromPage(int page) throws IOException {

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -26,14 +27,30 @@ public class JobListingsNotificationManager {
         this.restClient = RestClient.create();
     }
 
-    public void notifyUser(JobListingsDTO job) {
-        LOGGER.info("New Job Found: {}\nLink: {}\n---------------------------------------------------",
-                job.title(),
-                job.url());
+    public void notifyUsers(List<JobListingsDTO> newJobs) {
+        if (newJobs.isEmpty()) return;
 
-        String message = String.format("<b>New job listing!</b>\n\n %s\n %s", job.title(), job.url());
-       sendMessageToTelegram(message);
+        LOGGER.info("Found {} new job listings. Generating Telegram messages...", newJobs.size());
+
+        final int MAX_MESSAGE_LENGTH = 4000;
+
+        StringBuilder message = new StringBuilder("<b>New job listings found:</b>\n\n");
+
+        for (JobListingsDTO job : newJobs) {
+            LOGGER.info("New Job Found: {} | Link: {}", job.title(), job.url());
+
+            String jobLine = String.format("🔹 <a href='%s'>%s</a>\n", job.url(), job.title());
+
+            if (message.length() + jobLine.length() > MAX_MESSAGE_LENGTH) {
+                sendMessageToTelegram(message.toString());
+                message = new StringBuilder("<b>New job listings (continued):</b>\n\n");
+            }
+
+            message.append(jobLine);
+        }
+        sendMessageToTelegram(message.toString());
     }
+
     public void notifyFailure(String scraperName, String errorMessage) {
         LOGGER.warn("WARNING: Scraper '{}' failed, error: {}", scraperName, errorMessage);
 

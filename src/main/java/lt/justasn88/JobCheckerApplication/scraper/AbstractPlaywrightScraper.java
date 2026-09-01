@@ -20,10 +20,9 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
 
     @Override
     public List<JobListingsDTO> performScrape() {
-        Set<JobListingsDTO> allJobs = new LinkedHashSet<>();
+        java.util.Map<String, JobListingsDTO> allJobs = new java.util.LinkedHashMap<>();
 
         try (Playwright playwright = Playwright.create()) {
-
             Browser browser = playwright.chromium().launch(
                     new BrowserType.LaunchOptions()
                             .setHeadless(true)
@@ -40,7 +39,9 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
                 }
 
                 int sizeBefore = allJobs.size();
-                allJobs.addAll(jobsOnPage);
+                for (JobListingsDTO job : jobsOnPage) {
+                    allJobs.putIfAbsent(job.url(), job);
+                }
 
                 if (allJobs.size() == sizeBefore) {
                     LOGGER.info("Job count did not increase. Page " + page + " returned duplicate jobs. Stopping.");
@@ -53,8 +54,7 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
             LOGGER.error("Error when scraping with Playwright: {}", e.getMessage(), e);
             throw e;
         }
-
-        return new ArrayList<>(allJobs);
+        return new java.util.ArrayList<>(allJobs.values());
     }
 
     protected abstract List<JobListingsDTO> fetchJobsFromPage(Page browserPage, int pageNum);
