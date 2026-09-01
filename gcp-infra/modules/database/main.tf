@@ -39,6 +39,7 @@ resource "google_compute_instance" "postgres_vm" {
       -e POSTGRES_USER=${var.db_username} \
       -e POSTGRES_PASSWORD=${var.db_password} \
       -e POSTGRES_DB=${var.db_name} \
+      -v postgres_data:/var/lib/postgresql/data \
       --restart unless-stopped \
       postgres:15
   EOT

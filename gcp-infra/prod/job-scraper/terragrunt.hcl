@@ -23,7 +23,7 @@ inputs = {
   telegram_token = local.helm_values.telegram.botToken
 
   env_vars = {
-    "SPRING_DATASOURCE_URL"      = "jdbc:postgresql://..."
+    "SPRING_DATASOURCE_URL"      = "jdbc:postgresql://${dependency.database.outputs.database_internal_ip}:5432/${local.helm_values.database.name}"
     "SPRING_DATASOURCE_USERNAME" = local.helm_values.database.user
     "telegram.chatId"            = local.helm_values.telegram.chatId
     "scraper.userAgent"          = local.helm_values.scraper.userAgent

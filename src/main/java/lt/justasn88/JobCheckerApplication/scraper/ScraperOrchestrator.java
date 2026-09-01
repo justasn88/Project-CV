@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Random;
 
 @Component
 public class ScraperOrchestrator implements CommandLineRunner {
@@ -34,10 +33,7 @@ public class ScraperOrchestrator implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        int randomDelaySeconds = new Random().nextInt(31) + 15;
-        LOGGER.info("Cloud scheduler triggered the application. Waiting {} seconds before scraping to simulate human behavior...", randomDelaySeconds);
-
-        Thread.sleep(randomDelaySeconds * 1000L);
+        LOGGER.info("Cloud scheduler triggered the application. Starting scraping");
 
         for (JobListingsScraper scraper : scrapers) {
             executeScrape(scraper);

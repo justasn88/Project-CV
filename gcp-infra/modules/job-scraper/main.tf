@@ -33,7 +33,7 @@ resource "google_secret_manager_secret_version" "telegram_token_version" {
 }
 
 
-# 3. Service Accounts and permissions
+# Service Accounts and permissions
 resource "google_service_account" "scraper_runner_sa" {
   account_id   = "scraper-runner-sa"
   display_name = "Cloud Run Job Runner SA"
@@ -62,7 +62,7 @@ resource "google_project_iam_member" "scheduler_invoker" {
   member  = "serviceAccount:${google_service_account.scheduler_sa.email}"
 }
 
-# 4. Cloud Run Job configuration
+# Cloud Run Job configuration
 resource "google_cloud_run_v2_job" "scraper_job" {
   name     = "job-scraper-task"
   location = var.region
@@ -100,7 +100,7 @@ resource "google_cloud_run_v2_job" "scraper_job" {
           value_source {
             secret_key_ref {
               secret  = google_secret_manager_secret.db_password.secret_id
-              version = "latest"
+              version = google_secret_manager_secret_version.db_password_version.version
             }
           }
         }
@@ -110,7 +110,7 @@ resource "google_cloud_run_v2_job" "scraper_job" {
           value_source {
             secret_key_ref {
               secret  = google_secret_manager_secret.telegram_token.secret_id
-              version = "latest"
+              version = google_secret_manager_secret_version.telegram_token_version.version
             }
           }
         }

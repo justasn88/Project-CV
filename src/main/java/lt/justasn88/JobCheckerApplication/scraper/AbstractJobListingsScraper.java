@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +60,7 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
                 break;
             }
 
-            pauseToAvoidBan();
+            pauseScraper();
         }
         return new java.util.ArrayList<>(allJobs.values());
     }
@@ -95,7 +94,7 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
         return extractJobListings(response.parse());
     }
 
-    private void pauseToAvoidBan() {
+    private void pauseScraper() {
         try {
             Thread.sleep(this.requestDelayMs);
         } catch (InterruptedException e) {

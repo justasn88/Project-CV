@@ -8,10 +8,7 @@ import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPlaywrightScraper.class);
@@ -48,7 +45,7 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
                     break;
                 }
 
-                pauseToAvoidBan();
+                pauseScraper();
             }
         } catch (RuntimeException e) {
             LOGGER.error("Error when scraping with Playwright: {}", e.getMessage(), e);
@@ -59,7 +56,7 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
 
     protected abstract List<JobListingsDTO> fetchJobsFromPage(Page browserPage, int pageNum);
 
-    protected void pauseToAvoidBan() {
+    protected void pauseScraper() {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

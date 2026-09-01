@@ -6,10 +6,12 @@ import lt.justasn88.JobCheckerApplication.model.ScraperExecutionEntity;
 import lt.justasn88.JobCheckerApplication.repository.JobListingsRepository;
 import lt.justasn88.JobCheckerApplication.repository.ScraperExecutionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 
+@Transactional
 @Service
 public class JobListingsService {
 

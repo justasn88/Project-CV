@@ -47,4 +47,6 @@ git rm -r --cached .
 ### Helm ###
 
 **/values-prod.yaml
+
 .aider*
+bfg-*.jar
