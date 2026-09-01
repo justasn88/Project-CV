@@ -1,4 +1,0 @@
-apiVersion: v2
-name: job-scraper
-description: Helm chart for Java Job Scraper
-version: 1.0.2

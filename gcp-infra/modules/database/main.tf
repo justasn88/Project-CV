@@ -53,3 +53,8 @@ output "database_ip" {
   description = "Public PostgreSQL server IP address"
   value       = google_compute_instance.postgres_vm.network_interface[0].access_config[0].nat_ip
 }
+
+output "database_internal_ip" {
+  description = "Internal PostgreSQL server IP address"
+  value       = google_compute_instance.postgres_vm.network_interface[0].network_ip
+}

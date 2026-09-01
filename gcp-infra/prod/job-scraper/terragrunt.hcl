@@ -6,8 +6,12 @@ terraform {
   source = "../../modules/job-scraper"
 }
 
+dependency "database" {
+  config_path = "../database"
+}
+
 locals {
-  helm_values = yamldecode(file("../../job-scraper-chart/values-prod.yaml"))
+  helm_values = yamldecode(file("../values-prod.yaml"))
 }
 
 inputs = {
@@ -15,14 +19,13 @@ inputs = {
   region       = "us-east1"
   docker_image = "${local.helm_values.image.repository}:${local.helm_values.image.tag}"
 
+  db_password    = local.helm_values.database.password
+  telegram_token = local.helm_values.telegram.botToken
+
   env_vars = {
-    "SPRING_DATASOURCE_URL"      = "jdbc:postgresql://34.138.218.102:5432/${local.helm_values.database.name}"
+    "SPRING_DATASOURCE_URL"      = "jdbc:postgresql://..."
     "SPRING_DATASOURCE_USERNAME" = local.helm_values.database.user
-    "SPRING_DATASOURCE_PASSWORD" = local.helm_values.database.password
-
-    "telegram.botToken"          = local.helm_values.telegram.botToken
     "telegram.chatId"            = local.helm_values.telegram.chatId
-
     "scraper.userAgent"          = local.helm_values.scraper.userAgent
 
     "scraper.providers.cvbankas.url"      = local.helm_values.scraper.providers.cvbankas.url

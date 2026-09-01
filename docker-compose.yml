@@ -16,7 +16,7 @@ services:
           memory: 250M
 
   scraper:
-    image: justasn8/job-scraper:V1.0.4
+    image: justasn8/job-scraper:latest
     container_name: job_scraper_app
     restart: always
     environment:
