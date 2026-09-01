@@ -7,12 +7,15 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class LinkedInScraper extends AbstractPlaywrightScraper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinkedInScraper.class);
 
     private static final String PROVIDER_NAME = "linkedin";
     private final String targetUrl;
@@ -37,7 +40,7 @@ public class LinkedInScraper extends AbstractPlaywrightScraper {
 
         String currentUrl = targetUrl + (targetUrl.contains("?") ? "&" : "?") + "start=" + startOffset;
 
-        System.out.println("Navigating to LinkedIn: " + currentUrl);
+        LOGGER.info("Navigating to LinkedIn: " + currentUrl);
         browserPage.navigate(currentUrl);
 
         try {
@@ -61,12 +64,14 @@ public class LinkedInScraper extends AbstractPlaywrightScraper {
                 }
             }
 
-            System.out.println("In LinkedIn page: " + pageNum + " found jobs: " + jobsList.size());
+            LOGGER.info("In LinkedIn page: " + pageNum + " found jobs: " + jobsList.size());
 
-        } catch (Exception e) {
-            System.err.println("Failed to read LinkedIn page " + pageNum + ": " + e.getMessage());
+        } catch (RuntimeException e) {
+            LOGGER.error("Failed to read LinkedIn page " + pageNum + ": " + e.getMessage());
+            throw e;
         }
 
         return jobsList;
     }
+
 }

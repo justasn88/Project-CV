@@ -5,6 +5,8 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPlaywrightScraper.class);
 
     private static final int MAX_PAGES = 5;
 
@@ -32,7 +35,7 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
                 List<JobListingsDTO> jobsOnPage = fetchJobsFromPage(browserPage, page);
 
                 if (jobsOnPage.isEmpty()) {
-                    System.out.println("End of pagination (empty page) for " + getScraperName());
+                    LOGGER.info("End of pagination (empty page) for " + getScraperName());
                     break;
                 }
 
@@ -40,14 +43,15 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
                 allJobs.addAll(jobsOnPage);
 
                 if (allJobs.size() == sizeBefore) {
-                    System.out.println("Job count did not increase. Page " + page + " returned duplicate jobs. Stopping.");
+                    LOGGER.info("Job count did not increase. Page " + page + " returned duplicate jobs. Stopping.");
                     break;
                 }
 
                 pauseToAvoidBan();
             }
-        } catch (Exception e) {
-            System.err.println("Error when scraping with Playwright: " + e.getMessage());
+        } catch (RuntimeException e) {
+            LOGGER.error("Error when scraping with Playwright: {}", e.getMessage(), e);
+            throw e;
         }
 
         return new ArrayList<>(allJobs);

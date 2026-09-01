@@ -6,6 +6,8 @@ import lt.justasn88.JobCheckerApplication.service.JobListingsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,13 +20,16 @@ public class ScraperOrchestrator implements CommandLineRunner {
     private final List<JobListingsScraper> scrapers;
     private final JobListingsService jobListingsService;
     private final JobListingsNotificationManager jobListingsNotificationManager;
+    private final ApplicationContext context;
 
     public ScraperOrchestrator (List<JobListingsScraper> scrapers,
                                 JobListingsService jobListingsService,
-                                JobListingsNotificationManager jobListingsNotificationManager) {
+                                JobListingsNotificationManager jobListingsNotificationManager,
+                                ApplicationContext context) {
         this.scrapers = scrapers;
         this.jobListingsService = jobListingsService;
         this.jobListingsNotificationManager = jobListingsNotificationManager;
+        this.context = context;
     }
 
     @Override
@@ -39,7 +44,7 @@ public class ScraperOrchestrator implements CommandLineRunner {
         }
 
         LOGGER.info("All scraping tasks completed successfully. Shutting down the container.");
-        System.exit(0);
+        SpringApplication.exit(context, () -> 0);
     }
 
     private void executeScrape(JobListingsScraper scraper) {

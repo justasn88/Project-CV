@@ -1,4 +1,3 @@
-# 1. Sukuriame ugniesienės taisyklę, kad Cloud Run galėtų pasiekti duomenų bazę
 resource "google_compute_firewall" "allow_postgres" {
   name    = "allow-postgres"
   network = "default"
@@ -7,7 +6,7 @@ resource "google_compute_firewall" "allow_postgres" {
     protocol = "tcp"
     ports    = ["5432"]
   }
-  source_ranges = ["0.0.0.0/0"]
+  source_ranges = ["10.0.0.0/16"]
 }
 
 resource "google_compute_instance" "postgres_vm" {
@@ -25,12 +24,9 @@ resource "google_compute_instance" "postgres_vm" {
 
   network_interface {
     network = "default"
-    access_config {
-
-    }
+    access_config {}
   }
 
-  # 3. Script for Docker that runs database
   metadata_startup_script = <<-EOT
     #!/bin/bash
     apt-get update
@@ -48,7 +44,6 @@ resource "google_compute_instance" "postgres_vm" {
   EOT
 }
 
-# Variables and outputs
 variable "region" { type = string }
 variable "db_username" { type = string }
 variable "db_password" { type = string }
