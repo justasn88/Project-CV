@@ -1,10 +1,10 @@
-package lt.justasn88.JobCheckerApplication.service;
+package lt.justasn88.jobcheckerapplication.service;
 
-import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
-import lt.justasn88.JobCheckerApplication.model.JobListingsEntity;
-import lt.justasn88.JobCheckerApplication.model.ScraperExecutionEntity;
-import lt.justasn88.JobCheckerApplication.repository.JobListingsRepository;
-import lt.justasn88.JobCheckerApplication.repository.ScraperExecutionRepository;
+import lt.justasn88.jobcheckerapplication.model.JobListingsDTO;
+import lt.justasn88.jobcheckerapplication.model.JobListingsEntity;
+import lt.justasn88.jobcheckerapplication.model.ScraperExecutionEntity;
+import lt.justasn88.jobcheckerapplication.repository.JobListingsRepository;
+import lt.justasn88.jobcheckerapplication.repository.ScraperExecutionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

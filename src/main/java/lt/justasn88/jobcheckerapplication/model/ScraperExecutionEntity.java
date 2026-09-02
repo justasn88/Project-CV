@@ -1,4 +1,4 @@
-package lt.justasn88.JobCheckerApplication.model;
+package lt.justasn88.jobcheckerapplication.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

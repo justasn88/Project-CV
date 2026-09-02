@@ -1,4 +1,4 @@
-package lt.justasn88.JobCheckerApplication.config;
+package lt.justasn88.jobcheckerapplication.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

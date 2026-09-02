@@ -1,8 +1,8 @@
-package lt.justasn88.JobCheckerApplication.scraper;
+package lt.justasn88.jobcheckerapplication.scraper;
 
 import com.microsoft.playwright.Page;
-import lt.justasn88.JobCheckerApplication.config.ScraperProperties;
-import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import lt.justasn88.jobcheckerapplication.config.ScraperProperties;
+import lt.justasn88.jobcheckerapplication.model.JobListingsDTO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

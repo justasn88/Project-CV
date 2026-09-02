@@ -1,6 +1,6 @@
-package lt.justasn88.JobCheckerApplication.service;
+package lt.justasn88.jobcheckerapplication.service;
 
-import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import lt.justasn88.jobcheckerapplication.model.JobListingsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

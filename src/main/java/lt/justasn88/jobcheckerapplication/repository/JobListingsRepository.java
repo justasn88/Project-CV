@@ -1,6 +1,6 @@
-package lt.justasn88.JobCheckerApplication.repository;
+package lt.justasn88.jobcheckerapplication.repository;
 
-import lt.justasn88.JobCheckerApplication.model.JobListingsEntity;
+import lt.justasn88.jobcheckerapplication.model.JobListingsEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -40,4 +40,10 @@ inputs = {
     "scraper.providers.linkedin.url"      = local.helm_values.scraper.providers.linkedin.url
     "scraper.providers.linkedin.name"     = local.helm_values.scraper.providers.linkedin.name
   }
+  scrapers_cron = {
+    "cvbankas" = local.helm_values.scraper.providers.cvbankas.cron
+    "cvmarket" = local.helm_values.scraper.providers.cvmarket.cron
+    "cvonline" = local.helm_values.scraper.providers.cvonline.cron
+    "linkedin" = local.helm_values.scraper.providers.linkedin.cron
+  }
 }

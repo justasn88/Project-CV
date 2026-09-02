@@ -1,8 +1,8 @@
-package lt.justasn88.JobCheckerApplication.scraper;
+package lt.justasn88.jobcheckerapplication.scraper;
 
 import lombok.Getter;
-import lt.justasn88.JobCheckerApplication.config.ScraperProperties;
-import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import lt.justasn88.jobcheckerapplication.config.ScraperProperties;
+import lt.justasn88.jobcheckerapplication.model.JobListingsDTO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 public abstract class AbstractJobListingsScraper implements JobListingsScraper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScraperOrchestrator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScraperController.class);
 
     @Getter
     private final String targetUrl;

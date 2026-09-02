@@ -1,10 +1,11 @@
-package lt.justasn88.JobCheckerApplication.scraper;
+package lt.justasn88.jobcheckerapplication.scraper;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import lt.justasn88.jobcheckerapplication.model.JobListingsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +20,17 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
     public List<JobListingsDTO> performScrape() {
         java.util.Map<String, JobListingsDTO> allJobs = new java.util.LinkedHashMap<>();
 
-        try (Playwright playwright = Playwright.create()) {
-            Browser browser = playwright.chromium().launch(
-                    new BrowserType.LaunchOptions()
-                            .setHeadless(true)
-                            .setArgs(List.of("--disable-dev-shm-usage"))
-            );
-            Page browserPage = browser.newPage();
+        try (Playwright playwright = Playwright.create();
+             Browser browser = playwright.chromium().launch(
+                     new BrowserType.LaunchOptions()
+                             .setHeadless(true)
+                             .setArgs(List.of("--disable-dev-shm-usage", "--no-sandbox"))
+             );
+             BrowserContext context = browser.newContext()) {
+
+            Page browserPage = context.newPage();
+
+            browserPage.route("**/*.{png,jpg,jpeg,gif,svg,css,woff,woff2,ttf,eot}", route -> route.abort());
 
             for (int page = 1; page <= MAX_PAGES; page++) {
                 List<JobListingsDTO> jobsOnPage = fetchJobsFromPage(browserPage, page);

@@ -1,6 +1,6 @@
-package lt.justasn88.JobCheckerApplication.scraper;
+package lt.justasn88.jobcheckerapplication.scraper;
 
-import lt.justasn88.JobCheckerApplication.model.JobListingsDTO;
+import lt.justasn88.jobcheckerapplication.model.JobListingsDTO;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 
