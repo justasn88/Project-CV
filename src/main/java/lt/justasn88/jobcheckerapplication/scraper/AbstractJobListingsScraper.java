@@ -16,7 +16,7 @@ import java.util.Map;
 
 public abstract class AbstractJobListingsScraper implements JobListingsScraper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScraperController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobListingsScraper.class);
 
     @Getter
     private final String targetUrl;
