@@ -11,11 +11,11 @@ spring:
     locations: classpath:db/migration
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
-
-
-
+    properties:
+      hibernate.jdbc.batch_size: 50
+      hibernate.order_inserts: true
   sql:
     init:
       mode: always

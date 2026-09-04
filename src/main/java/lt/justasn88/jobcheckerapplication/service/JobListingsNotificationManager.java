@@ -71,8 +71,9 @@ public class JobListingsNotificationManager {
                     ))
                     .retrieve()
                     .toBodilessEntity();
-        }catch (Exception e) {
-            LOGGER.error("Failed to send Telegram message");
+        } catch (Exception e) {
+            LOGGER.error("Failed to send Telegram message", e);
+            throw new RuntimeException("Telegram notification failed", e);
         }
     }
 }
