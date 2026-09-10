@@ -15,34 +15,49 @@ public class ScraperExecutionService {
     private final List<JobListingsScraper> scrapers;
     private final JobListingsService jobListingsService;
     private final JobListingsNotificationManager jobListingsNotificationManager;
+    private final ScraperDispatchService dispatchService;
 
     public ScraperExecutionService(List<JobListingsScraper> scrapers,
                                    JobListingsService jobListingsService,
-                                   JobListingsNotificationManager jobListingsNotificationManager) {
+                                   JobListingsNotificationManager jobListingsNotificationManager,
+                                   ScraperDispatchService dispatchService) {
         this.scrapers = scrapers;
         this.jobListingsService = jobListingsService;
         this.jobListingsNotificationManager = jobListingsNotificationManager;
+        this.dispatchService = dispatchService;
     }
 
-    public void executeTargetScrapers(String targetScraper) {
-        LOGGER.info("Executing actual scrape logic for: {}", targetScraper);
+    public void executeTargetScrapers(String targetScraper, int targetPage, String host) {
+        LOGGER.info("Executing scrape logic for: {} (Page: {})", targetScraper, targetPage);
         for (JobListingsScraper scraper : scrapers) {
             if ("ALL".equalsIgnoreCase(targetScraper) || targetScraper.equalsIgnoreCase(scraper.getScraperName())) {
-                executeSingleScraper(scraper);
+                executeSingleScraper(scraper, targetPage, host);
             }
         }
     }
 
-    private void executeSingleScraper(JobListingsScraper scraper) {
+    private void executeSingleScraper(JobListingsScraper scraper, int targetPage, String host) {
         try {
-            LOGGER.info("Starting scrape logic for: {}", scraper.getScraperName());
-            List<JobListingsDTO> jobs = scraper.performScrape();
+            LOGGER.info("Starting scrape logic for: {} (Page: {})", scraper.getScraperName(), targetPage);
+
+            List<JobListingsDTO> jobs = scraper.performScrape(targetPage);
+
             jobListingsService.processJobsListings(jobs, scraper.getScraperName());
             jobListingsService.logExecution(scraper.getScraperName(), "SUCCESS", jobs.size(), null);
         } catch (Exception e) {
             LOGGER.error("Failed to connect to {}", scraper.getScraperName(), e);
-            jobListingsNotificationManager.notifyFailure(scraper.getScraperName(), e.getMessage());
-            jobListingsService.logExecution(scraper.getScraperName(), "FAILED", 0, e.getMessage());
+
+            String errorMessage = e.getMessage() != null ? e.getMessage() : e.toString();
+
+            boolean isTimeout = errorMessage.toLowerCase().contains("timeout") ||
+                    e.getClass().getSimpleName().toLowerCase().contains("timeout");
+
+            if (!isTimeout) {
+                jobListingsNotificationManager.notifyFailure(scraper.getScraperName(), errorMessage);
+            } else {
+                LOGGER.info("Ignoruojamas timeout pranešimas į Telegram scraper'iui: {}", scraper.getScraperName());
+            }
+            jobListingsService.logExecution(scraper.getScraperName(), "FAILED", 0, errorMessage);
         }
     }
 }

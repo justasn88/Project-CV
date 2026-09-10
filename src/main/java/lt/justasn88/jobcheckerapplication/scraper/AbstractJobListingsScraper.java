@@ -37,32 +37,27 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
     }
 
 
-    public List<JobListingsDTO> performScrape() throws IOException {
-        java.util.Map<String, JobListingsDTO> allJobs = new java.util.LinkedHashMap<>();
-        final int MAX_PAGES = 5;
+    public List<JobListingsDTO> performScrape(int page) throws IOException {
+        String currentUrl = buildPageUrl(page);
+        LOGGER.info("Searching for jobs: {} page: {}", scraperName, page);
 
-        for (int page = 1; page <= MAX_PAGES; page++) {
-            List<JobListingsDTO> jobsOnPage = fetchJobsFromPage(page);
+        org.jsoup.Connection connection = Jsoup.connect(currentUrl)
+                .userAgent(this.userAgent)
+                .timeout(30000)
+                .ignoreHttpErrors(true);
 
-            if (jobsOnPage.isEmpty()) {
-                LOGGER.info("End of pagination (empty page).");
-                break;
-            }
-
-            int sizeBefore = allJobs.size();
-
-            for (JobListingsDTO job : jobsOnPage) {
-                allJobs.putIfAbsent(job.url(), job);
-            }
-
-            if (allJobs.size() == sizeBefore) {
-                LOGGER.info("Job count did not increase (total remains {}). Page {} returned duplicate jobs. Stopping.", allJobs.size(), page);
-                break;
-            }
-
-            pauseScraper();
+        if (this.headers != null && !this.headers.isEmpty()) {
+            connection.headers(this.headers);
         }
-        return new java.util.ArrayList<>(allJobs.values());
+
+        org.jsoup.Connection.Response response = connection.execute();
+
+        if (response.statusCode() == 404) {
+            LOGGER.info("Page not found (404). Assuming end of pagination.");
+            return List.of();
+        }
+
+        return extractJobListings(response.parse());
     }
 
     private List<JobListingsDTO> fetchJobsFromPage(int page) throws IOException {

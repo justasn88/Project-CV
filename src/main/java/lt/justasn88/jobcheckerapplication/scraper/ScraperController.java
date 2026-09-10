@@ -23,16 +23,21 @@ public class ScraperController {
                                            HttpServletRequest request) {
         try {
             String host = request.getHeader("Host");
-            int delaySeconds = dispatchService.dispatchTask(targetScraper, host);
-            return ResponseEntity.ok("Dispatched successfully with " + delaySeconds + "s delay");
+            dispatchService.dispatchTask(targetScraper, host);
+            return ResponseEntity.ok("Dispatched tasks successfully.");
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to dispatch task");
         }
     }
 
     @PostMapping("/scrape")
-    public ResponseEntity<String> scrape(@RequestHeader("TARGET_SCRAPER") String targetScraper) {
-        executionService.executeTargetScrapers(targetScraper);
+    public ResponseEntity<String> scrape(
+            @RequestHeader("TARGET_SCRAPER") String targetScraper,
+            @RequestHeader(value = "TARGET_PAGE", defaultValue = "1") int targetPage,
+            HttpServletRequest request) {
+
+        String host = request.getHeader("Host");
+        executionService.executeTargetScrapers(targetScraper, targetPage, host);
         return ResponseEntity.ok("Scraping completed");
     }
 }

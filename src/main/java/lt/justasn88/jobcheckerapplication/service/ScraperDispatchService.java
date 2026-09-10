@@ -25,7 +25,18 @@ public class ScraperDispatchService {
         this.gcpProperties = gcpProperties;
     }
 
-    public int dispatchTask(String targetScraper, String host) {
+    public void dispatchTask(String targetScraper, String host) {
+        if ("ALL".equalsIgnoreCase(targetScraper)) {
+            LOGGER.info("Received ALL. Dispatching individual tasks for each scraper...");
+            for (String scraperName : scraperProperties.providers().keySet()) {
+                createAndEnqueueTask(scraperName, host);
+            }
+        } else {
+            createAndEnqueueTask(targetScraper, host);
+        }
+    }
+
+    private void createAndEnqueueTask(String targetScraper, String host) {
         int delaySeconds = calculateDelay(targetScraper);
         String dynamicTargetUrl = "https://" + host + "/api/scrape";
 
@@ -37,7 +48,8 @@ public class ScraperDispatchService {
             HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder()
                     .setUrl(dynamicTargetUrl)
                     .setHttpMethod(HttpMethod.POST)
-                    .putHeaders("TARGET_SCRAPER", targetScraper);
+                    .putHeaders("TARGET_SCRAPER", targetScraper)
+                    .putHeaders("TARGET_PAGE", "1");
 
             if (gcpProperties.serviceAccountEmail() != null && !gcpProperties.serviceAccountEmail().isEmpty()) {
                 httpRequestBuilder.setOidcToken(OidcToken.newBuilder().setServiceAccountEmail(gcpProperties.serviceAccountEmail()).build());
@@ -52,10 +64,42 @@ public class ScraperDispatchService {
                             .build());
 
             client.createTask(queuePath, taskBuilder.build());
-            return delaySeconds;
         } catch (Exception e) {
             LOGGER.error("Failed to enqueue task for {}", targetScraper, e);
             throw new RuntimeException("Could not dispatch task to Cloud Tasks", e);
+        }
+    }
+
+    public void dispatchPaginationTask(String targetScraper, String host, int nextPage) {
+        int delaySeconds = 4 + new Random().nextInt(7);
+        String dynamicTargetUrl = "https://" + host + "/api/scrape";
+
+        LOGGER.info("Enqueuing next page ({}) for {} with {}s delay.", nextPage, targetScraper, delaySeconds);
+
+        try (CloudTasksClient client = CloudTasksClient.create()) {
+            String queuePath = QueueName.of(gcpProperties.projectId(), gcpProperties.region(), gcpProperties.queueName()).toString();
+
+            HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder()
+                    .setUrl(dynamicTargetUrl)
+                    .setHttpMethod(HttpMethod.POST)
+                    .putHeaders("TARGET_SCRAPER", targetScraper)
+                    .putHeaders("TARGET_PAGE", String.valueOf(nextPage));
+
+            if (gcpProperties.serviceAccountEmail() != null && !gcpProperties.serviceAccountEmail().isEmpty()) {
+                httpRequestBuilder.setOidcToken(OidcToken.newBuilder().setServiceAccountEmail(gcpProperties.serviceAccountEmail()).build());
+            }
+
+            Instant scheduleTime = Instant.now().plusSeconds(delaySeconds);
+            Task.Builder taskBuilder = Task.newBuilder()
+                    .setHttpRequest(httpRequestBuilder)
+                    .setScheduleTime(Timestamp.newBuilder()
+                            .setSeconds(scheduleTime.getEpochSecond())
+                            .setNanos(scheduleTime.getNano())
+                            .build());
+
+            client.createTask(queuePath, taskBuilder.build());
+        } catch (Exception e) {
+            LOGGER.error("Failed to enqueue pagination task for {}", targetScraper, e);
         }
     }
 
@@ -63,7 +107,7 @@ public class ScraperDispatchService {
         int minDelay = DEFAULT_MIN_DELAY;
         int maxDelay = DEFAULT_MAX_DELAY;
 
-        if (!"ALL".equalsIgnoreCase(targetScraper) && scraperProperties.providers().containsKey(targetScraper)) {
+        if (scraperProperties.providers().containsKey(targetScraper)) {
             ScraperProperties.Delay delay = scraperProperties.providers().get(targetScraper).delay();
             if (delay != null) {
                 minDelay = delay.min();

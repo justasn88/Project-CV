@@ -28,15 +28,23 @@ inputs = {
 
     "scraper.providers.cvbankas.url"      = local.helm_values.scraper.providers.cvbankas.url
     "scraper.providers.cvbankas.name"     = local.helm_values.scraper.providers.cvbankas.name
+    "scraper.providers.cvbankas.delay.min" = local.helm_values.scraper.providers.cvbankas.delay.min
+    "scraper.providers.cvbankas.delay.max" = local.helm_values.scraper.providers.cvbankas.delay.max
 
     "scraper.providers.cvmarket.url"      = local.helm_values.scraper.providers.cvmarket.url
     "scraper.providers.cvmarket.name"     = local.helm_values.scraper.providers.cvmarket.name
+    "scraper.providers.cvmarket.delay.min" = local.helm_values.scraper.providers.cvmarket.delay.min
+    "scraper.providers.cvmarket.delay.max" = local.helm_values.scraper.providers.cvmarket.delay.max
 
     "scraper.providers.cvonline.url"      = local.helm_values.scraper.providers.cvonline.url
     "scraper.providers.cvonline.name"     = local.helm_values.scraper.providers.cvonline.name
+    "scraper.providers.cvonline.delay.min" = local.helm_values.scraper.providers.cvonline.delay.min
+    "scraper.providers.cvonline.delay.max" = local.helm_values.scraper.providers.cvonline.delay.max
 
     "scraper.providers.linkedin.url"      = local.helm_values.scraper.providers.linkedin.url
     "scraper.providers.linkedin.name"     = local.helm_values.scraper.providers.linkedin.name
+    "scraper.providers.linkedin.delay.min" = local.helm_values.scraper.providers.linkedin.delay.min
+    "scraper.providers.linkedin.delay.max" = local.helm_values.scraper.providers.linkedin.delay.max
   }
   scrapers_cron = {
     "ALL" = local.helm_values.scraper.providers.all_cron

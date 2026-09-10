@@ -17,9 +17,7 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
     private static final int MAX_PAGES = 5;
 
     @Override
-    public List<JobListingsDTO> performScrape() {
-        java.util.Map<String, JobListingsDTO> allJobs = new java.util.LinkedHashMap<>();
-
+    public List<JobListingsDTO> performScrape(int page) {
         try (Playwright playwright = Playwright.create();
              Browser browser = playwright.chromium().launch(
                      new BrowserType.LaunchOptions()
@@ -32,31 +30,20 @@ public abstract class AbstractPlaywrightScraper implements JobListingsScraper {
 
             browserPage.route("**/*.{png,jpg,jpeg,gif,svg,css,woff,woff2,ttf,eot}", route -> route.abort());
 
-            for (int page = 1; page <= MAX_PAGES; page++) {
-                List<JobListingsDTO> jobsOnPage = fetchJobsFromPage(browserPage, page);
+            LOGGER.info("Searching for jobs: {} page: {}", getScraperName(), page);
 
-                if (jobsOnPage.isEmpty()) {
-                    LOGGER.info("End of pagination (empty page) for " + getScraperName());
-                    break;
-                }
+            List<JobListingsDTO> jobsOnPage = fetchJobsFromPage(browserPage, page);
 
-                int sizeBefore = allJobs.size();
-                for (JobListingsDTO job : jobsOnPage) {
-                    allJobs.putIfAbsent(job.url(), job);
-                }
-
-                if (allJobs.size() == sizeBefore) {
-                    LOGGER.info("Job count did not increase. Page " + page + " returned duplicate jobs. Stopping.");
-                    break;
-                }
-
-                pauseScraper();
+            if (jobsOnPage.isEmpty()) {
+                LOGGER.info("End of pagination (empty page) for " + getScraperName());
             }
+
+            return jobsOnPage;
+
         } catch (RuntimeException e) {
             LOGGER.error("Error when scraping with Playwright: {}", e.getMessage(), e);
             throw e;
         }
-        return new java.util.ArrayList<>(allJobs.values());
     }
 
     protected abstract List<JobListingsDTO> fetchJobsFromPage(Page browserPage, int pageNum);

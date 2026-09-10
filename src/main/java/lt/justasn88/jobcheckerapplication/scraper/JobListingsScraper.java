@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface JobListingsScraper {
     String getScraperName();
-    List<JobListingsDTO> performScrape() throws Exception;
+    List<JobListingsDTO> performScrape(int page) throws Exception;
 }
