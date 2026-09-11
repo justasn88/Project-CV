@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:16.4
+    container_name: job_checker_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 250M
+
+  scraper:
+    image: justasn8/job-scraper:latest
+    container_name: job_scraper_app
+    restart: always
+    environment:
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JAVA_OPTS: "-Xmx300m"
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          memory: 450M
+
+volumes:
+  postgres_data:
