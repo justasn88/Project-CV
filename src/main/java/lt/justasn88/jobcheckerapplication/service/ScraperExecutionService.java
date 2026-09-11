@@ -44,6 +44,17 @@ public class ScraperExecutionService {
 
             jobListingsService.processJobsListings(jobs, scraper.getScraperName());
             jobListingsService.logExecution(scraper.getScraperName(), "SUCCESS", jobs.size(), null);
+
+            if (!jobs.isEmpty()) {
+                if (targetPage < 5) {
+                    dispatchService.dispatchPaginationTask(scraper.getScraperName(), host, targetPage + 1);
+                } else {
+                    LOGGER.warn("Reached maximum pagination limit (50) for scraper: {}", scraper.getScraperName());
+                }
+            } else {
+                LOGGER.info("Pagination finished for {}. No jobs found on page {}.", scraper.getScraperName(), targetPage);
+            }
+
         } catch (Exception e) {
             LOGGER.error("Failed to connect to {}", scraper.getScraperName(), e);
 

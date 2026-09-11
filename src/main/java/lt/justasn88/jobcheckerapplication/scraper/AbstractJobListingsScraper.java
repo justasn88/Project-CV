@@ -56,28 +56,6 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
             LOGGER.info("Page not found (404). Assuming end of pagination.");
             return List.of();
         }
-
-        return extractJobListings(response.parse());
-    }
-
-    private List<JobListingsDTO> fetchJobsFromPage(int page) throws IOException {
-        String currentUrl = buildPageUrl(page);
-        LOGGER.info("Searching for jobs: {} page: {}", scraperName, page);
-
-        org.jsoup.Connection connection = Jsoup.connect(currentUrl)
-                .userAgent(this.userAgent)
-                .timeout(30000)
-                .ignoreHttpErrors(true);
-
-        if (this.headers != null && !this.headers.isEmpty()) {
-            connection.headers(this.headers);
-        }
-
-        org.jsoup.Connection.Response response = connection.execute();
-        if (response.statusCode() == 404) {
-            LOGGER.info("Page not found (404) for {}. Assuming end of pagination.", currentUrl);
-            return List.of();
-        }
         String decodedCurrentUrl = URLDecoder.decode(currentUrl, StandardCharsets.UTF_8);
         String decodedResponseUrl = URLDecoder.decode(response.url().toString(), StandardCharsets.UTF_8);
 
@@ -89,14 +67,6 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
         return extractJobListings(response.parse());
     }
 
-    private void pauseScraper() {
-        try {
-            Thread.sleep(this.requestDelayMs);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            LOGGER.error("Scraping forcefully terminated.");
-        }
-    }
 
     protected abstract String buildPageUrl(int page);
 
