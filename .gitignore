@@ -31,3 +31,22 @@ build/
 
 ### VS Code ###
 .vscode/
+
+application-local.yml
+.env
+
+### Terragrunt/Terraform ##
+git rm -r --cached .
+**/.terraform/
+**/.terragrunt-cache/
+**/*.tfstate
+**/*.tfstate.backup
+**/*.tfvars
+**/*.tfplan
+
+### Helm ###
+
+**/values-prod.yaml
+
+.aider*
+bfg-*.jar
