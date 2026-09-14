@@ -20,6 +20,8 @@ public class LinkedInJobListingsScraper extends AbstractPlaywrightScraper {
     private final LinkedInHtmlParser parser;
 
     public LinkedInJobListingsScraper(ScraperProperties properties, LinkedInHtmlParser parser) {
+        super(properties.userAgent(), properties.headers());
+
         ScraperProperties.Provider provider = properties.providers().get(PROVIDER_NAME);
         this.targetUrl = provider.url();
         this.scraperName = provider.name();

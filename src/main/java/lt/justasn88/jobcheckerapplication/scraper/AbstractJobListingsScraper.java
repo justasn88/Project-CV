@@ -25,7 +25,6 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
     private final String scraperName;
 
     private final String userAgent;
-    private final long requestDelayMs;
     private final Map<String, String> headers;
 
     protected AbstractJobListingsScraper(ScraperProperties.Provider providerConfig, ScraperProperties scraperProperties){
@@ -33,7 +32,6 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
         this.scraperName = providerConfig.name();
         this.userAgent = scraperProperties.userAgent();
         this.headers = scraperProperties.headers();
-        this.requestDelayMs = scraperProperties.requestDelayMs();
     }
 
 
