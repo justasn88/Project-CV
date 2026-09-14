@@ -16,10 +16,10 @@ public class JobListingsEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String title;
 
-    @Column(nullable = false, unique = true, length = 500)
+    @Column(nullable = false, unique = true, columnDefinition = "TEXT")
     private String url;
 
     @Column(name = "scraper_name", nullable = false, length = 50)
