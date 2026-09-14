@@ -41,17 +41,24 @@ public class LinkedInJobListingsScraper extends AbstractPlaywrightScraper {
 
         try {
             browserPage.waitForSelector("ul.jobs-search__results-list");
+
             String htmlContent = browserPage.content();
             Document doc = Jsoup.parse(htmlContent);
-
             List<JobListingsDTO> jobsList = parser.parseJobs(doc);
 
             LOGGER.info("In LinkedIn page: " + pageNum + " found jobs: " + jobsList.size());
             return jobsList;
+        } catch (com.microsoft.playwright.TimeoutError e) {
+            throw new lt.justasn88.jobcheckerapplication.exception.ScraperTimeoutException(
+                    "Playwright timeout: 'LinkedIn' page failed to load in time", e);
+        } catch (com.microsoft.playwright.PlaywrightException e) {
+            if (e.getMessage() != null && e.getMessage().contains("TargetClosedError")) {
+                throw new lt.justasn88.jobcheckerapplication.exception.ScraperTimeoutException("Playwright error: browser unexpectedly closed (TargetClosedError)", e);
+            }
+            throw e;
         } catch (RuntimeException e) {
             LOGGER.error("Failed to read LinkedIn page " + pageNum + ": " + e.getMessage());
             throw e;
         }
     }
-
 }

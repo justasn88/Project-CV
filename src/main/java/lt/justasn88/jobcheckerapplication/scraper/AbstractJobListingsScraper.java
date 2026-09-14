@@ -50,7 +50,13 @@ public abstract class AbstractJobListingsScraper implements JobListingsScraper {
             connection.headers(this.headers);
         }
 
-        org.jsoup.Connection.Response response = connection.execute();
+        org.jsoup.Connection.Response response;
+        try {
+            response = connection.execute();
+        } catch (java.net.SocketTimeoutException e) {
+            throw new lt.justasn88.jobcheckerapplication.exception.ScraperTimeoutException("Jsoup timout: failed to connect to: " + scraperName, e);
+        }
+
 
         if (response.statusCode() == 404) {
             LOGGER.info("Page not found (404). Assuming end of pagination.");

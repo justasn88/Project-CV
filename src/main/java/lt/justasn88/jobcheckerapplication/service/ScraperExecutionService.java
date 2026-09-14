@@ -60,14 +60,10 @@ public class ScraperExecutionService {
 
             String errorMessage = e.getMessage() != null ? e.getMessage() : e.toString();
 
-            boolean isTimeout = errorMessage.toLowerCase().contains("timeout") ||
-                    e.getClass().getSimpleName().toLowerCase().contains("timeout");
-
-            if (!isTimeout) {
-                jobListingsNotificationManager.notifyFailure(scraper.getScraperName(), errorMessage);
+            if (e instanceof lt.justasn88.jobcheckerapplication.exception.ScraperTimeoutException) {
+                LOGGER.warn("Ignoring timeout error to telegram for scraper: {}", scraper.getScraperName());
             } else {
-                LOGGER.info("Ignoruojamas timeout pranešimas į Telegram scraper'iui: {}", scraper.getScraperName());
-            }
+                jobListingsNotificationManager.notifyFailure(scraper.getScraperName(), errorMessage);            }
             jobListingsService.logExecution(scraper.getScraperName(), "FAILED", 0, errorMessage);
         }
     }
